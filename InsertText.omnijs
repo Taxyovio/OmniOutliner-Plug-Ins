@@ -2,7 +2,7 @@
 	"type": "action",
 	"targets": ["omnioutliner"],
 	"author": "Taxyovio",
-	"description": "This action inserts texts at the end of the selected column of selected rows.",
+	"description": "This action inserts texts at the end or start of the selected column of selected rows.",
 	"label": "Insert Text",
 	"shortLabel": "Insert Text"
 }*/
@@ -51,12 +51,20 @@
 			document.outline.outlineColumn
 		)
 		
+		var insertionPositionField = new Form.Field.Option(
+			"insertionPositionInput",
+			"Position",
+			["End", "Start"],
+			null,
+			"End"
+		)
+		
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(textField)
 		inputForm.addField(columnField)
-		
+		inputForm.addField(insertionPositionField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Enter Title and URL and select Column:"
+		formPrompt = "Enter Text and select Column Position:"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -70,6 +78,7 @@
 		formPromise.then(function(formObject){
 			var insertStr = formObject.values["textInput"]
 			var selectedColumn = formObject.values["columnInput"]
+			var selectedPosition = formObject.values["insertionPositionInput"]
 			textInsert = new Text(insertStr, document.outline.baseStyle)
 			
 			selectedItems.forEach(function(item){
@@ -81,7 +90,12 @@
 					item.setValueForColumn(textInsert, selectedColumn)
 				} else {
 					textStr = targetTextObj.string
-					targetTextObj.insert(targetTextObj.end, textInsert)
+					if (selectedPosition === 'End') {
+						targetTextObj.insert(targetTextObj.end, textInsert)
+					} else if (selectedPosition === 'Start') {
+						targetTextObj.insert(targetTextObj.start, textInsert)
+					}
+					
 				}
 			})
 		})
