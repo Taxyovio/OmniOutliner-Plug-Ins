@@ -34,6 +34,7 @@
 						if(atts){
 							atts.forEach(att => {
 								var wrapper = att.fileWrapper
+								var range = att.range
 								if(wrapper.type === FileWrapper.Type.File){
 									// Replace illegal characters in filenames to similar but legal ones
 									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\//g, '⧸')
@@ -72,7 +73,9 @@
 								
 									// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 									formPromise.then(function(formObject){
-										wrapper.preferredFilename = formObject.values["textInput"]
+										newWrapper = FileWrapper.withContents(formObject.values["textInput"], wrapper.contents)
+										textObj = Text.makeFileAttachment(newWrapper, document.outline.baseStyle)
+										row.valueForColumn(col).replace(range, textObj)
 									})
 									
 									// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
