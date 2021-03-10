@@ -1,0 +1,34 @@
+/*{
+ "type": "action",
+ "targets": ["omnioutliner"],
+ "author": "Taxyovio",
+ "description": "Create a markdown compatible format from the current document and share it via Share Sheet.",
+ "label": "Share as MarkDown",
+ "paletteLabel": "Share as MarkDown"
+}*/
+
+var _ = function() {
+  var action = new PlugIn.Action(function(selection, sender){
+    var topics = new Array()
+    rootItem.descendants.forEach(function(item){
+        level = item.level
+        itemString = '#'.repeat(level) + " " + item.topic
+        topics.push(itemString)
+        
+        noteString = '\n'
+        if(item.note) {
+            noteString = noteString + item.note + '\n'
+        }
+        topics.push(noteString)
+    })
+    sharePanel = new SharePanel([topics.join("\n")])
+    sharePanel.show()
+  });
+  
+  action.validate = function(selection, sender){
+    if(rootItem.descendants.length > 0){return true} else {return false}
+  }
+  
+  return action
+}();
+_;

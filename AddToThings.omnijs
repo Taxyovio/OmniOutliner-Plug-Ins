@@ -1,0 +1,42 @@
+/*{
+	"type": "action",
+	"targets": ["omnioutliner"],
+	"author": "Taxyovio",
+	"description": "Script creates a new Things task from the selected outline item.",
+	"label": "Add to Things",
+	"paletteLabel": "Add to Things"
+}*/
+
+var _ = function(){
+	
+	var action = new PlugIn.Action(function(selection, sender) {
+		// action code
+		// selection options: columns, document, editor, items, nodes, styles
+		selection.items.forEach(function(item){
+			try {taskName = item.topic} catch(err){taskName = ''}
+			try {taskNote = item.note} catch(err){taskNote = ''}
+			itemLink = 'omnioutliner:///open?row=' + item.identifier
+			itemLink = encodeURIComponent(itemLink)
+			if(taskName != ''){
+				taskName = encodeURIComponent(taskName)
+				urlStr = "things:///add?title=" + taskName
+				if (taskNote != ''){
+					taskNote = encodeURIComponent(taskNote)
+					urlStr = urlStr + "&notes=" + itemLink+ "%0A%0A" + taskNote
+				} else {
+					urlStr = urlStr + "&notes=" + itemLink
+				}
+				URL.fromString(urlStr).call(function(result){})
+			}
+		})
+	});
+
+	action.validate = function(selection, sender) {
+		// validation code
+		// selection options: columns, document, editor, items, nodes, styles
+		if(selection.items.length === 1){return true} else {return false}
+	};
+	
+	return action;
+}();
+_;

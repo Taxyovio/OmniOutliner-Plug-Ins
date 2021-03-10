@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.omnigroup.com/namespace/OmniOutliner/xmloutline-editors-v1.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0?>
+<editors xmlns="http://www.omnigroup.com/namespace/OmniOutliner/editors/v1">
+  <editor content-size="{682, 684}" status-visible="no" is-spellchecking-enabled="yes" auto-size-outline-column="yes">
+    <sidebar width="203"/>
+    <column-states columns-id="bBhdXDHsguc">
+      <column-state column-id="jX3SLyV-O6v" hidden="yes" width="32" summary="state"/>
+      <column-state column-id="dTpN3JwYpBn" width="18"/>
+      <column-state column-id="af94N4WWozL" width="150"/>
+      <column-state column-id="m5n7h4EEUbz" width="150"/>
+      <column-state column-id="jFqHUGd_Dg1" width="275"/>
+      <column-state column-id="c3ZVJX6eZMi" width="150"/>
+      <column-state column-id="i_QzXL6Ss5N" width="150"/>
+      <column-state column-id="nZ66_7HtSo8" width="150"/>
+      <column-state column-id="eInskHfmWzy" width="150"/>
+      <column-state column-id="g1JWq59lYTM" width="150"/>
+    </column-states>
+    <note-split-view height="33"/>
+  </editor>
+</editors>
