@@ -26,7 +26,13 @@ var _ = function() {
   });
   
   action.validate = function(selection, sender){
-    if(rootItem.descendants.length > 0){return true} else {return false}
+    if(typeof rootItem !== 'undefined') {
+		if (rootItem.descendants.length > 0){
+			return true
+		} else {
+			return false
+		}
+	}
   }
   
   return action
