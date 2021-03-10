@@ -26,8 +26,7 @@
 			})
 			if(textColumns.length === 0){throw new Error("This document has no text columns.")}
 					
-			// GET ARRAY OF FILEWRAPPERS FOR ATTACHED AUDIO CLIPS
-			var exportWrappers = []
+			// GET ARRAY OF FILEWRAPPERS FOR ATTACHED Files
 			selection.items.forEach((row,index) => {
 				textColumns.forEach(col => {
 					if(row.valueForColumn(col)){
