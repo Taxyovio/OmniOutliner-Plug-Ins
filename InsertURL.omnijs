@@ -45,7 +45,7 @@
 		var urlField = new Form.Field.String(
 			"urlInput",
 			"URL",
-			"https:/omni-automation.com",
+			"https://omni-automation.com",
 			null
 		)
 		
