@@ -1,0 +1,103 @@
+/*{
+	"type": "action",
+	"targets": ["omnioutliner"],
+	"author": "Taxyovio",
+	"description": "This plug-in renames attachments after replacing illegal characters in filenames to similar but legal ones for the files attached to the text columns of the selected rows.",
+	"label": "Rename Attachment",
+	"shortLabel": "Rename Attachment"
+}*/
+(() => {
+	var action = new PlugIn.Action(function(selection, sender){
+		// action code
+		// selection options: columns, document, editor, items, nodes, outline, styles
+		
+		try {
+			// GET ARRAY OF VISIBLE TEXT COLUMNS (OMIT “NOTE BUTTON” COLUMN)
+			var editor = document.editors[0]
+			var textColumns = [noteColumn]
+			columns.forEach(col => {
+				if (editor.visibilityOfColumn(col)){
+					if (col.type === Column.Type.Text){
+						if (!textColumns.includes(col)){
+							textColumns.push(col)
+						}
+					}
+				}
+			})
+			if(textColumns.length === 0){throw new Error("This document has no text columns.")}
+					
+			// GET ARRAY OF FILEWRAPPERS FOR ATTACHED Files
+			selection.items.forEach((row,index) => {
+				textColumns.forEach(col => {
+					if(row.valueForColumn(col)){
+						var atts = row.valueForColumn(col).attachments
+						if(atts){
+							atts.forEach(att => {
+								var wrapper = att.fileWrapper
+								if(wrapper.type === FileWrapper.Type.File){
+									// Replace illegal characters in filenames to similar but legal ones
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\//g, '⧸')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\\/g, '⧹')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/</g, '＜')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/>/g, '＞')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/:/g, '：')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/"/g, '＂')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\|/g, '⏐')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\?/g, '？')
+									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\*/g, '＊')
+									
+									// CREATE FORM FOR GATHERING USER INPUT
+									var inputForm = new Form()
+									
+									// CREATE TEXT FIELD
+									var textField = new Form.Field.String(
+										"textInput",
+										"Filename",
+										wrapper.preferredFilename
+									)
+									
+									// ADD THE FIELDS TO THE FORM
+									inputForm.addField(textField)
+									
+									// PRESENT THE FORM TO THE USER
+									formPrompt = "Enter Filename:"
+									formPromise = inputForm.show(formPrompt,"Continue")
+									
+									// VALIDATE THE USER INPUT
+									inputForm.validate = function(formObject){
+										var textValue = formObject.values["textInput"]
+										var textStatus = (textValue && textValue.length > 0) ? true:false
+										return textStatus
+									}
+								
+									// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+									formPromise.then(function(formObject){
+										wrapper.preferredFilename = formObject.values["textInput"]
+									})
+									
+									// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+									formPromise.catch(function(err){
+										console.log("form cancelled", err.message)
+									})
+								}
+							})
+						}
+					}
+				})
+			})
+			
+			
+		}
+		catch(err){
+			console.error(err)
+		}
+	});
+
+	action.validate = function(selection, sender){
+		// validation code
+		// selection options: columns, document, editor, items, nodes, outline, styles
+		return (selection.items.length > 0)
+	};
+	
+	return action;
+	})();
