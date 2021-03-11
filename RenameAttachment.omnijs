@@ -6,11 +6,12 @@
 	"label": "Rename Attachment",
 	"shortLabel": "Rename Attachment"
 }*/
+
+
 (() => {
 	var action = new PlugIn.Action(function(selection, sender){
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
-		
 		try {
 			// GET ARRAY OF VISIBLE TEXT COLUMNS (OMIT “NOTE BUTTON” COLUMN)
 			var editor = document.editors[0]
@@ -25,16 +26,17 @@
 				}
 			})
 			if(textColumns.length === 0){throw new Error("This document has no text columns.")}
-					
+			
 			// GET ARRAY OF FILEWRAPPERS FOR ATTACHED Files
-			selection.items.forEach((row,index) => {
+			selection.items.forEach(row => {
 				textColumns.forEach(col => {
 					if(row.valueForColumn(col)){
 						var atts = row.valueForColumn(col).attachments
+						var attRanges = row.valueForColumn(col).ranges(TextComponent.Attachments)
 						if(atts){
-							atts.forEach(att => {
+							atts.forEach((att,index) => {
 								var wrapper = att.fileWrapper
-								var range = att.range
+								var range = attRanges[index]
 								if(wrapper.type === FileWrapper.Type.File){
 									// Replace illegal characters in filenames to similar but legal ones
 									wrapper.preferredFilename = wrapper.preferredFilename.replace(/\//g, '⧸')
@@ -49,7 +51,6 @@
 									
 									// CREATE FORM FOR GATHERING USER INPUT
 									var inputForm = new Form()
-									
 									// CREATE TEXT FIELD
 									var textField = new Form.Field.String(
 										"textInput",
@@ -61,7 +62,7 @@
 									inputForm.addField(textField)
 									
 									// PRESENT THE FORM TO THE USER
-									formPrompt = "Enter Filename:"
+									formPrompt = ""
 									formPromise = inputForm.show(formPrompt,"Continue")
 									
 									// VALIDATE THE USER INPUT
@@ -73,15 +74,20 @@
 								
 									// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 									formPromise.then(function(formObject){
-										newWrapper = FileWrapper.withContents(formObject.values["textInput"], wrapper.contents)
-										textObj = Text.makeFileAttachment(newWrapper, document.outline.baseStyle)
-										row.valueForColumn(col).replace(range, textObj)
+										// As attachments are read only, we need to replace the old one with new one instead of renaming the old one directly.
+										if (wrapper.preferredFilename !== formObject.values["textInput"]) {
+											var newWrapper = FileWrapper.withContents(formObject.values["textInput"], wrapper.contents)
+											var textObj = Text.makeFileAttachment(newWrapper, document.outline.baseStyle)
+											row.valueForColumn(col).replace(range, textObj)
+										}
+										
 									})
 									
 									// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
 									formPromise.catch(function(err){
 										console.log("form cancelled", err.message)
 									})
+										
 								}
 							})
 						}
