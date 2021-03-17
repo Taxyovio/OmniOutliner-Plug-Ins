@@ -1,0 +1,25 @@
+// This action counts the total number of words in the topic column for the selected rows.
+var _ = function(){
+	
+	var action = new PlugIn.Action(function(selection, sender) {
+		// action code
+		// selection options: columns, document, editor, items, nodes, styles
+		wordcount = 0
+		selection.items.forEach(function(item){
+			// Get the text object from topic column
+			var textObj = item.valueForColumn(document.outline.outlineColumn)
+			wordcount = wordcount + textObj.words.length
+		})
+		alert = new Alert('Word Count', wordcount.toString())
+		alert.show()
+	});
+
+	action.validate = function(selection, sender) {
+		// validation code
+		// selection options: columns, document, editor, items, nodes, styles
+		if(selection.items.length > 0){return true} else {return false}
+	};
+	
+	return action;
+}();
+_;

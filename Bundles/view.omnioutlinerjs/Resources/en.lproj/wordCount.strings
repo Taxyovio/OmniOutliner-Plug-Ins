@@ -1,0 +1,4 @@
+"label" = "Word Count";
+"shortLabel" = "Word Count";
+"mediumLabel" = "Word Count";
+"LongLabel" = "Shows the total word count in selected rows";

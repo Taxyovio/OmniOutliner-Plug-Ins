@@ -1,0 +1,4 @@
+{"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.taxyovio.view","version":"2021.03.17","description":"A collection of Omni Automation scripts customising the view of data in OmniOutliner.","actions":[
+	{"image":"icon.png","identifier":"focusSelection"},
+	{"image":"icon.png","identifier":"wordCount"},
+],"defaultLocale":"en"}
