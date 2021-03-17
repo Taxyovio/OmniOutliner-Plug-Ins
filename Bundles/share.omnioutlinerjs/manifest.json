@@ -1,0 +1,9 @@
+{"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.Taxyovio.OmniOutliner","version":"2021.03.17","description":"A collection of Omni Automation scripts exporting data out of OmniOutliner.","actions":[
+	{"image":"icon.png","identifier":"newAnkiTemplate"},
+	{"image":"icon.png","identifier":"addToAnki"},
+	{"image":"icon.png","identifier":"addToThings"},
+	{"image":"icon.png","identifier":"addToDEVONthink"},
+	{"image":"icon.png","identifier":"shareTopic"},
+	{"image":"icon.png","identifier":"shareItemLink"},
+	{"image":"icon.png","identifier":"shareAsMarkdown"},
+],"defaultLocale":"en"}
