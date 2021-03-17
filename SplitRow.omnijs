@@ -30,7 +30,7 @@ var _ = function(){
 						selectedItemParent.addChild(
 							selectedItem.after,
 							function(item){
-							item.setValueForColumn(par, document.outline.outlineColumn)
+								item.setValueForColumn(par, document.outline.outlineColumn)
 							}
 						)
 					} else if (index === paragraphArrayLength-1) {

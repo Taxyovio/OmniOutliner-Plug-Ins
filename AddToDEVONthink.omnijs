@@ -2,7 +2,7 @@
 	"type": "action",
 	"targets": ["omnioutliner"],
 	"author": "Taxyovio",
-	"description": "Script creates a new text in DEVONthink To Go from the selected outline item.",
+	"description": "Script creates a new text in DEVONthink To Go from the selected outline item. The topic is passed as body and note is passed as comment.",
 	"label": "Add to DEVONthink",
 	"paletteLabel": "Add to DEVONthink"
 }*/
