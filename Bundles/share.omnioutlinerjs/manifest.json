@@ -1,4 +1,4 @@
-{"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.Taxyovio.OmniOutliner","version":"2021.03.17","description":"A collection of Omni Automation scripts exporting data out of OmniOutliner.","actions":[
+{"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.taxyovio.share","version":"2021.03.17","description":"A collection of Omni Automation scripts exporting data out of OmniOutliner.","actions":[
 	{"image":"icon.png","identifier":"newAnkiTemplate"},
 	{"image":"icon.png","identifier":"addToAnki"},
 	{"image":"icon.png","identifier":"addToThings"},
