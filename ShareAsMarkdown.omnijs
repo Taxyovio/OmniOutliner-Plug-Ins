@@ -3,8 +3,8 @@
  "targets": ["omnioutliner"],
  "author": "Taxyovio",
  "description": "Create a markdown compatible format from the current document and share it via Share Sheet.",
- "label": "Share as MarkDown",
- "paletteLabel": "Share as MarkDown"
+ "label": "Share as Markdown",
+ "paletteLabel": "Share as Markdown"
 }*/
 
 var _ = function() {

@@ -3,8 +3,8 @@
 	"targets": ["omnioutliner"],
 	"author": "Taxyovio",
 	"description": "This action shares the item URL for the selected row via Share Sheet.",
-	"label": "Share Item URL",
-	"paletteLabel": "Share Item URL"
+	"label": "Share Row Link",
+	"paletteLabel": "Share Row Link"
 }*/
 
 var _ = function(){

@@ -3,8 +3,8 @@
 	"targets": ["omnioutliner"],
 	"author": "Taxyovio",
 	"description": "This action shares the selected items via Share Sheet.",
-	"label": "Share Item Topic",
-	"paletteLabel": "Share Item Topic"
+	"label": "Share Topic",
+	"paletteLabel": "Share Topic"
 }*/
 
 var _ = function(){
