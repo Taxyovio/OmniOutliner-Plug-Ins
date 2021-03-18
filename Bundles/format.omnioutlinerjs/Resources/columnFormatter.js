@@ -1,4 +1,4 @@
-// This action applies title case to the text of the selected rows.
+// This action changes the formatter of selected column.
 (() => {
 
 	var action = new PlugIn.Action(function(selection, sender){
