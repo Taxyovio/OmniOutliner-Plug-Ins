@@ -17,6 +17,10 @@
 			return el !== null && el !== undefined;
 		})
 		
+		if (filteredColumns.length === 0) {
+			throw new Error("This document has no text columns.")
+		}
+		
 		filteredColumnTitles = filteredColumns.map(function(column){
 			if (column.title !== ''){
 				return column.title
