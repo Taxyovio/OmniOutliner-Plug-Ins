@@ -1,0 +1,356 @@
+// This action applies title case to the text of the selected rows.
+(() => {
+
+	var action = new PlugIn.Action(function(selection, sender){
+		// action code
+		// selection options: columns, document, editor, items, nodes, outline, styles
+		var selectedItems = selection.items
+		
+		// List all visible text columns for insertion
+		editor = document.editors[0]
+		visibleFormattableColumns = columns.map(function(column){
+			if (editor.visibilityOfColumn(column)){
+				if (column.type === Column.Type.Date || column.type === Column.Type.Duration || column.type === Column.Type.Number) {
+					return column
+				}
+			}
+		})
+		
+		filteredColumns = visibleFormattableColumns.filter(el => {
+			return el !== null && el !== undefined;
+		})
+		
+		if (filteredColumns.length === 0) {
+			throw new Error("This document has no text columns.")
+		}
+		
+		filteredColumnTitles = filteredColumns.map(function(column){
+			if (column.title !== ''){
+				return column.title
+			} else if (column === document.outline.noteColumn){
+			// The note column has empty title for unknown reason
+				return 'Note'
+			}
+		})
+		
+		// CREATE FORM FOR GATHERING USER INPUT
+		var inputForm = new Form()
+		
+		// CREATE TEXT FIELD
+		
+		var columnField = new Form.Field.Option(
+			"columnInput",
+			"Column",
+			filteredColumns,
+			filteredColumnTitles,
+			filteredColumns[0]
+		)
+		
+		// ADD THE FIELDS TO THE FORM
+		inputForm.addField(columnField)
+		// PRESENT THE FORM TO THE USER
+		formPrompt = "Select Column:"
+		formPromise = inputForm.show(formPrompt,"Continue")
+		
+		// VALIDATE THE USER INPUT
+		inputForm.validate = function(formObject){
+			return null
+		}
+	
+		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+		formPromise.then(function(formObject){
+			var selectedColumn = formObject.values["columnInput"]
+			var selectedColumnType = selectedColumn.type
+			// CREATE FORM FOR GATHERING USER INPUT
+			var formatterForm = new Form()
+			
+			if (selectedColumnType === Column.Type.Date) {
+				// Calendar and time zone identifiers in the current locale
+				var curCalendar = Calendar.current.identifier
+				var curTimeZone = Calendar.current.timeZone.abbreviation
+				// Calendar and time zone identifiers of the selected column
+				var ogCalendar = selectedColumn.formatter.calendar.identidier
+				var ogTimeZone = selectedColumn.formatter.timeZone.abbreviation
+				
+				// CREATE TEXT FIELD
+				var formatterField = new Form.Field.Option(
+					"formatterInput",
+					"Format",
+					['None', 'ISO 8601'],
+					['None', 'ISO 8601'],
+					'ISO 8601'
+				)
+				var dateStyleField = new Form.Field.Option(
+					"dateStyleInput",
+					"Date Style",
+					[Formatter.Date.Style.Full, Formatter.Date.Style.Long, Formatter.Date.Style.Medium, Formatter.Date.Style.Short, 'None'],
+					['Full', 'Long', 'Medium', 'Short', 'None'],
+					'None'
+				)
+				
+				var timeStyleField = new Form.Field.Option(
+					"timeStyleInput",
+					"Time Style",
+					[Formatter.Date.Style.Full, Formatter.Date.Style.Long, Formatter.Date.Style.Medium, Formatter.Date.Style.Short, 'None'],
+					['Full', 'Long', 'Medium', 'Short', 'None'],
+					'None'
+				)
+				
+				var calendarField = new Form.Field.Option(
+					"calendarInput",
+					"Calendar",
+					['iso8601', 'buddhist', 'chinese', 'coptic', 'ethiopicAmeteAlem', 'ethiopicAmeteMihret', 'gregorian', 'hebrew', 'islamic', 'islamicCivil', 'islamicTabular', 'islamicUmmAlQura', 'japanese', 'persian', 'republicOfChina'],
+					['ISO 8601', 'Buddhist', 'Chinese', 'Coptic', 'Ethiopic Amete Alem', 'Ethiopic Amete Mihret', 'Gregorian', 'Hebrew', 'Islamic', 'Islamic Civil', 'Islamic Tabular', 'Islamic Umm al-Qura', 'Japanese', 'Persian', 'Republic Of China'],
+					curCalendar
+				)
+
+				var timeZoneField = new Form.Field.Option(
+					"timeZoneInput",
+					"Time Zone",
+					TimeZone.abbreviations,
+					null,
+					curTimeZone
+				)
+				
+				// ADD THE FIELDS TO THE FORM
+				formatterForm.addField(formatterField)
+				formatterForm.addField(dateStyleField)
+				formatterForm.addField(timeStyleField)
+				formatterForm.addField(calendarField)
+				formatterForm.addField(timeZoneField)
+
+				// PRESENT THE FORM TO THE USER
+				formatterFormPrompt = "Select Formatter:"
+				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
+				
+				// VALIDATE THE USER INPUT
+				formatterForm.validate = function(formObject){
+					if ((formObject.values["dateStyleInput"] === 'None') && (formObject.values["timeStyleInput"] !== 'None')) {
+						throw new Error('Only formatter with a date style can have a time style.')
+						return false
+					} else if ((formObject.values["formatterInput"] === 'None') && (formObject.values["calendarInput"] !== curCalendar)) {
+						throw new Error('Only formatter with ISO 8601 format can change calendar.')
+						return false
+					} else if ((formObject.values["formatterInput"] === 'None') && (formObject.values["timeZoneInput"] !== curTimeZone)) {
+						throw new Error('Only formatter with ISO 8601 format can change time zone.')
+						return false
+					} else if ((formObject.values["formatterInput"] !== 'None') && (formObject.values["dateStyleInput"] !== 'None')) {
+						throw new Error('Only formatter without format can apply date style.')
+						return false
+					} else if ((formObject.values["formatterInput"] !== 'None') && (formObject.values["timeStyleInput"] !== 'None')) {
+						throw new Error('Only formatter with default format can apply time style.')
+						return false
+					} else {
+						return null
+					}
+					
+				}
+			
+				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+				formatterFormPromise.then(function(formObject){
+					var selectedFormatter = formObject.values["formatterInput"]
+					var selectedDateStyle = formObject.values["dateStyleInput"]
+					var selectedTimeStyle = formObject.values["timeStyleInput"]
+					var selectedCalendar = formObject.values["calendarInput"]
+					var selectedTimeZone = formObject.values["timeZoneInput"]
+
+					if (selectedFormatter === 'None') {
+						selectedColumn.formatter = null
+					} else {
+						selectedColumn.formatter = Formatter.Date.iso8601
+					}
+					
+					if (selectedDateStyle !== 'None') {
+						if (selectedTimeStyle === 'None') {
+							selectedColumn.formatter = Formatter.Date.withStyle(selectedDateStyle)
+						} else {
+							selectedColumn.formatter = Formatter.Date.withStyle(selectedDateStyle, selectedTimeStyle)
+						}
+					}
+					
+					if (selectedCalendar !== ogCalendar) {
+						var cal = eval('Calendar.' + selectedCalendar)
+						selectedColumn.formatter.calendar = cal
+					}
+					if (selectedTimeZone !== ogTimeZone) {
+						selectedColumn.formatter.timeZone = new TimeZone(selectedTimeZone)
+					}
+				})
+				
+				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+				formatterFormPromise.catch(function(err){
+					console.log("form cancelled", err.message)
+				})
+				
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			if (selectedColumnType === Column.Type.Duration) {
+				// Original duration formats of the selected column
+				var ogHoursPerDay = selectedColumn.formatter.hoursPerDay
+				var ogHoursPerWeek = selectedColumn.formatter.hoursPerWeek
+				var ogUseVerboseFormat = selectedColumn.formatter.useVerboseFormat
+				
+				// CREATE TEXT FIELD
+				var formatterField = new Form.Field.Option(
+					"formatterInput",
+					"Format",
+					[false, true],
+					['Concise', 'Verbose'],
+					ogUseVerboseFormat
+				)
+				var dayField = new Form.Field.String(
+					"dayInput",
+					"Hours Per Day",
+					ogHoursPerDay.toString()
+				)
+				
+				var weekField = new Form.Field.String(
+					"weekInput",
+					"Hours Per Week",
+					ogHoursPerWeek.toString()
+				)
+				
+				
+				// ADD THE FIELDS TO THE FORM
+				formatterForm.addField(formatterField)
+				formatterForm.addField(dayField)
+				formatterForm.addField(weekField)
+				// PRESENT THE FORM TO THE USER
+				formatterFormPrompt = "Select Formatter:"
+				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
+				
+				// VALIDATE THE USER INPUT
+				formatterForm.validate = function(formObject){
+					if (isNaN(parseFloat(formObject.values["dayInput"])) || isNaN(parseFloat(formObject.values["weekInput"]))) {
+						throw new Error('Please enter numbers.')
+						return false
+					} else {
+						return null
+					}
+					
+				}
+			
+				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+				formatterFormPromise.then(function(formObject){
+					var useVerboseFormat = formObject.values["formatterInput"]
+					var hoursPerDay = parseFloat(formObject.values["dayInput"])
+					var hoursPerWeek = parseFloat(formObject.values["weekInput"])
+					
+					if (useVerboseFormat !== ogUseVerboseFormat) {
+						selectedColumn.formatter.useVerboseFormat = useVerboseFormat
+					}
+					if (hoursPerDay !== ogHoursPerDay) {
+						console.log(ogHoursPerDay)	
+						console.log(hoursPerDay)		
+						selectedColumn.formatter.hoursPerDay = hoursPerDay
+					}
+					if (hoursPerWeek !== ogHoursPerWeek) {
+						selectedColumn.formatter.hoursPerWeek = hoursPerWeek
+					}
+				})
+				
+				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+				formatterFormPromise.catch(function(err){
+					console.log("form cancelled", err.message)
+				})
+			}
+			
+			
+			
+			
+			if (selectedColumnType === Column.Type.Number) {
+			
+				currencyCodes = []
+				Locale.identifiers.forEach(id => {
+					loc = new Locale(id)
+					currencyCodes.push(loc.currencyCode)
+				})
+				currencyCodes = currencyCodes.filter(el => {
+					return el !== null && el !== undefined;
+				})
+				currencyCodes = currencyCodes.filter(onlyUnique)
+				currencyCodes.sort()
+				currencyCodes.unshift('None')
+				
+				// CREATE TEXT FIELD
+				var formatterField = new Form.Field.Option(
+					"formatterInput",
+					"Format",
+					['None', 'plain', 'decimal','thousandsAndDecimal', 'percent', 'percentWithDecimal'],
+					['None', 'Integer', 'Decimal', 'Separator Decimal', 'Percent', 'Percent Decimal'],
+					'None'
+				)
+				
+				var currencyField = new Form.Field.Option(
+					"currencyInput",
+					"Currency",
+					currencyCodes,
+					null,
+					'None'
+				)
+				
+				// ADD THE FIELDS TO THE FORM
+				formatterForm.addField(formatterField)
+				formatterForm.addField(currencyField)
+				
+				// PRESENT THE FORM TO THE USER
+				formatterFormPrompt = "Select Formatter:"
+				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
+				
+				// VALIDATE THE USER INPUT
+				formatterForm.validate = function(formObject){
+					if (formObject.values["currencyInput"] !== 'None' && formObject.values["formatterInput"] !== 'None') {
+						return false
+						throw new Error('Formatter and currency options are exclusive.')
+					} else if (formObject.values["currencyInput"] === 'None' && formObject.values["formatterInput"] === 'None') {
+						return false
+						throw new Error('Please choose an option.')
+					}
+					return null
+				}
+			
+				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+				formatterFormPromise.then(function(formObject){
+					var selectedFormatter = formObject.values["formatterInput"]
+					var selectedCurrency = formObject.values["currencyInput"]
+					if (selectedFormatter !== 'None') {
+						selectedColumn.formatter = eval('Formatter.Decimal.' + selectedFormatter)
+					} else if (selectedCurrency !== 'None') {
+						selectedColumn.formatter = Formatter.Decimal.currency(selectedCurrency)
+					}
+				})
+				
+				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+				formatterFormPromise.catch(function(err){
+					console.log("form cancelled", err.message)
+				})
+			}
+		})
+		
+		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+		formPromise.catch(function(err){
+			console.log("form cancelled", err.message)
+		})
+		
+	});
+	
+	
+	action.validate = function(selection, sender) {
+		// validation code
+		// selection options: columns, document, editor, items, nodes, styles
+		return true
+	};
+	
+	return action;
+})();
+
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}

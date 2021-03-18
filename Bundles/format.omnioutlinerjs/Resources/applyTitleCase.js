@@ -1,28 +1,94 @@
 // This action applies title case to the text of the selected rows.
 (() => {
-	
-	var action = new PlugIn.Action(function(selection, sender) {
+
+	var action = new PlugIn.Action(function(selection, sender){
 		// action code
-		// selection options: columns, document, editor, items, nodes, styles
-		selection.items.forEach(function(item){
-			str = item.topic
-			if (str.lastIndexOf('’') === -1){
-				item.topic = titleCaps(str)
-			} else {
-				indices = [];
-				for (var i=0; i < str.length; i++){
-					if (str[i] === "’") indices.push(i);
-				}
-				str = str.replace(/’/g, "'")
-				str = titleCaps(str)
-				indices.forEach(function(index){
-					str = setCharAt(str,index,'’') 
-				})
-				item.topic = str
+		// selection options: columns, document, editor, items, nodes, outline, styles
+		var selectedItems = selection.items
+		
+		// List all visible text columns for insertion
+		editor = document.editors[0]
+		visibleTextColumns = columns.map(function(column){
+			if (editor.visibilityOfColumn(column)){
+				if (column.type === Column.Type.Text){return column}
 			}
 		})
+		
+		filteredColumns = visibleTextColumns.filter(el => {
+			return el !== null && el !== undefined;
+		})
+		
+		if (filteredColumns.length === 0) {
+			throw new Error("This document has no text columns.")
+		}
+		
+		filteredColumnTitles = filteredColumns.map(function(column){
+			if (column.title !== ''){
+				return column.title
+			} else if (column === document.outline.noteColumn){
+			// The note column has empty title for unknown reason
+				return 'Note'
+			}
+		})
+		
+		// CREATE FORM FOR GATHERING USER INPUT
+		var inputForm = new Form()
+		
+		// CREATE TEXT FIELD
+		
+		var columnField = new Form.Field.Option(
+			"columnInput",
+			"Column",
+			filteredColumns,
+			filteredColumnTitles,
+			document.outline.outlineColumn
+		)
+		
+		// ADD THE FIELDS TO THE FORM
+		inputForm.addField(columnField)
+		// PRESENT THE FORM TO THE USER
+		formPrompt = "Select Column:"
+		formPromise = inputForm.show(formPrompt,"Continue")
+		
+		// VALIDATE THE USER INPUT
+		inputForm.validate = function(formObject){
+			return null
+		}
+	
+		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+		formPromise.then(function(formObject){
+			var selectedColumn = formObject.values["columnInput"]
+			
+			selectedItems.forEach(function(item){
+				var textObj = item.valueForColumn(selectedColumn)
+				var str = textObj.string
+				var sty = textObj.style
+				if (str.lastIndexOf('’') === -1){
+					newText = new Text(titleCaps(str), sty)
+					item.setValueForColumn(newText, selectedColumn)
+				} else {
+					indices = [];
+					for (var i=0; i < str.length; i++){
+						if (str[i] === "’") indices.push(i);
+					}
+					str = str.replace(/’/g, "'")
+					str = titleCaps(str)
+					indices.forEach(function(index){
+						str = setCharAt(str,index,'’') 
+					})
+					newText = new Text(titleCaps(str), sty)
+					item.setValueForColumn(newText, selectedColumn)
+				}
+			})
+		})
+		
+		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+		formPromise.catch(function(err){
+			console.log("form cancelled", err.message)
+		})
 	});
-
+	
+	
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
