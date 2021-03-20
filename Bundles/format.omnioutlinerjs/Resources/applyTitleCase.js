@@ -8,14 +8,10 @@
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		visibleTextColumns = columns.map(function(column){
+		filteredColumns = columns.filter(function(column){
 			if (editor.visibilityOfColumn(column)){
 				if (column.type === Column.Type.Text){return column}
 			}
-		})
-		
-		filteredColumns = visibleTextColumns.filter(el => {
-			return el !== null && el !== undefined;
 		})
 		
 		if (filteredColumns.length === 0) {
@@ -27,7 +23,17 @@
 				return column.title
 			} else if (column === document.outline.noteColumn){
 			// The note column has empty title for unknown reason
-				return 'Note'
+				return 'Notes'
+			}
+		})
+		
+		// Rename columns with the same titles
+		filteredColumnTitles = renameStrings(filteredColumnTitles)
+		filteredColumns.forEach((column,index) => {
+			if (column.title !== ''){
+				if (column.title !== filteredColumnTitles[index]) {
+					column.title = filteredColumnTitles[index]
+				}
 			}
 		})
 		
@@ -145,3 +151,17 @@ function lower(word){
 function upper(word){
 	return word.substr(0,1).toUpperCase() + word.substr(1);
 };
+
+function renameStrings(arr){
+	var count = {}
+	arr.forEach(function(x, i) {
+		if (arr.indexOf(x) !== i) {
+			var c = x in count ? count[x] = count[x] + 1 : count[x] = 1
+			var j = c + 1
+			var k = x + ' ' + j
+			while(arr.indexOf(k) !== -1) k = x + ' ' + (++j)
+			arr[i] = k
+		}
+	})
+	return arr
+}
