@@ -1,4 +1,4 @@
-"label" = "Paste Array";
-"shortLabel" = "Paste Array";
-"mediumLabel" = "Paste Array";
-"LongLabel" = "Paste array to separate rows";
+"label" = "Paste to Column";
+"shortLabel" = "Paste";
+"mediumLabel" = "Paste Column";
+"longLabel" = "Paste to selected column";
