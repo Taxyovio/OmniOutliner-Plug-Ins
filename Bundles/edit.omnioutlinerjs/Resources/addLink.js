@@ -30,19 +30,29 @@
 			}
 		})
 		
+		var defaultText = ''
+		var defaultURL = ''
+		if (Pasteboard.general.hasURLs) {
+			var defaultURL = Pasteboard.general.URL.string
+		} else if (Pasteboard.general.hasStrings) {
+			var defaultText = Pasteboard.general.string
+		}
+		
 		// CREATE FORM FOR GATHERING USER INPUT
 		var inputForm = new Form()
 		
 		// CREATE TEXT FIELD
 		var textField = new Form.Field.String(
 			"textInput",
-			"Title"
+			"Title",
+			defaultText,
+			null
 		)
 		
 		var urlField = new Form.Field.String(
 			"urlInput",
 			"URL",
-			"https://omni-automation.com",
+			defaultURL,
 			null
 		)
 		

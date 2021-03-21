@@ -30,6 +30,11 @@
 			}
 		})
 		
+		var defaultText = ''
+		if (Pasteboard.general.hasStrings) {
+			var defaultText = Pasteboard.general.string
+		}
+		
 		// CREATE FORM FOR GATHERING USER INPUT
 		var inputForm = new Form()
 		
@@ -37,7 +42,7 @@
 		var textField = new Form.Field.String(
 			"textInput",
 			"Text",
-			'Lorem'
+			defaultText
 		)
 		
 		var columnField = new Form.Field.Option(
