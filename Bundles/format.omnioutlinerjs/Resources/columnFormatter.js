@@ -351,7 +351,7 @@
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		return true
+		if (document !== null) {return true} else {return false}
 	};
 	
 	return action;

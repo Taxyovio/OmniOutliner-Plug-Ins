@@ -1,4 +1,4 @@
-// This action splits the texts in the selected column according to paragraphs for the selected rows.
+// This action splits the texts in the selected column according to paragraphs for the selected rows. Note that the selected nodd will be turned into the last paragraoh.
 var _ = function(){
 	
 	var action = new PlugIn.Action(function(selection, sender) {
@@ -7,7 +7,7 @@ var _ = function(){
 		var selectedItems = selection.items
 		var pb = Pasteboard.makeUnique()
 		
-		// List all visible text columns for insertion
+		// List all visible text columns
 		var editor = document.editors[0]
 		var filteredColumns = columns.filter(function(column){
 			if (editor.visibilityOfColumn(column)){
@@ -19,6 +19,7 @@ var _ = function(){
 			throw new Error("This document has no text columns.")
 		}
 		
+		
 		var filteredColumnTitles = filteredColumns.map(function(column){
 			if (column.title !== ''){
 				return column.title
@@ -27,16 +28,33 @@ var _ = function(){
 				return 'Notes'
 			}
 		})
-		
 		// Rename columns with the same titles
-		filteredColumnTitles = renameStrings(filteredColumnTitles)
-		filteredColumns.forEach((column,index) => {
-			if (column.title !== ''){
-				if (column.title !== filteredColumnTitles[index]) {
-					column.title = filteredColumnTitles[index]
+		if (hasDuplicates(filteredColumnTitles)) {
+			var alertTitle = "Confirmation"
+			var alertMessage = "Some columns have the same title.\nRename duplicated titles?"
+			var alert = new Alert(alertTitle, alertMessage)
+			alert.addOption("Continue")
+			alert.addOption("Stop")
+			var alertPromise = alert.show()
+			
+			alertPromise.then(buttonIndex => {
+				if (buttonIndex === 0){
+					console.log("Continue script")
+					filteredColumnTitles = renameStrings(filteredColumnTitles)
+					filteredColumns.forEach((column,index) => {
+						if (column.title !== ''){
+							if (column.title !== filteredColumnTitles[index]) {
+								column.title = filteredColumnTitles[index]
+							}
+						}
+					})
+				} else {
+					throw new Error('script cancelled')
 				}
-			}
-		})
+			})
+		} 
+		
+
 		
 		// CREATE FORM FOR GATHERING USER INPUT
 		var inputForm = new Form()
@@ -82,11 +100,8 @@ var _ = function(){
 				})
 				
 				var paragraphArrayLength = paragraphStringArray.length
-				console.log(paragraphArrayLength)
-				console.log(paragraphStringArray)
 				
 				if (paragraphArrayLength > 1) {
-					
 					var counter = 0
 					var repeats = paragraphArrayLength
 					
@@ -96,10 +111,9 @@ var _ = function(){
 							console.log('done')
 							timer.cancel()
 						} else {
-							console.log(counter)
+							console.log('counter:', counter)
 							var node = document.editors[0].selection.nodes[index]
 							var childIndex = node.index
-							console.log(childIndex)
 							document.editors[0].paste(pb, node.parent, childIndex)
 							var newNode = node.parent.children[childIndex]
 							if (selectedColumnTitle === '') {
@@ -124,10 +138,6 @@ var _ = function(){
 		})
 	});
 		
-		
-	
-
-
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
@@ -150,4 +160,8 @@ function renameStrings(arr){
 		}
 	})
 	return arr
+}
+
+function hasDuplicates(array) {
+	return (new Set(array)).size !== array.length;
 }

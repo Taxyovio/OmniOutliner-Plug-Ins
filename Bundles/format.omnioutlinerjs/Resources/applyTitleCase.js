@@ -6,7 +6,7 @@
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		var selectedItems = selection.items
 		
-		// List all visible text columns for insertion
+		// List all visible text columns
 		editor = document.editors[0]
 		filteredColumns = columns.filter(function(column){
 			if (editor.visibilityOfColumn(column)){
