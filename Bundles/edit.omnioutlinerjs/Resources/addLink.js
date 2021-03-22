@@ -64,10 +64,18 @@
 			document.outline.outlineColumn
 		)
 		
+		var insertionPositionField = new Form.Field.Option(
+			"insertionPositionInput",
+			"Position",
+			["End", "Start"],
+			null,
+			"End"
+		)
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(textField)
 		inputForm.addField(urlField)
 		inputForm.addField(columnField)
+		inputForm.addField(insertionPositionField)
 		
 		// PRESENT THE FORM TO THE USER
 		formPrompt = "Enter Title and URL and select Column:"
@@ -87,22 +95,35 @@
 			var insertStr = formObject.values["textInput"]
 			var urlStr = formObject.values["urlInput"]
 			var selectedColumn = formObject.values["columnInput"]
+			var selectedPosition = formObject.values["insertionPositionInput"]
 			var url = URL.fromString(urlStr)
-			textInsert = new Text(insertStr, document.outline.baseStyle)
-			textInsert.style.set(Style.Attribute.Link, url)
 			
 			selectedItems.forEach(function(item){
 			
-				// Add to the selected column
-				targetTextObj = item.valueForColumn(selectedColumn)	
-				// When item has no content, it's not possible to get the position for insertion.
-				if (targetTextObj === null){
-					item.setValueForColumn(textInsert, selectedColumn)
+				var targetText = item.valueForColumn(selectedColumn)
+				if (targetText !== null) {
+					var textInsert = new Text(insertStr, targetText.style)
+					textInsert.style.set(Style.Attribute.Link, url)
+					if (selectedPosition === 'End') {
+						targetText.append(textInsert)
+					} else if (selectedPosition === 'Start') {
+						targetText.insert(targetText.start, textInsert)
+					}
 				} else {
-					textStr = targetTextObj.string
-					targetTextObj.insert(targetTextObj.end, textInsert)
+					var textInsert = new Text(insertStr, document.outline.baseStyle)
+					textInsert.style.set(Style.Attribute.Link, url)
+					item.setValueForColumn(textInsert, selectedColumn)
 				}
 			})
+			
+			// Work around a bug that crops images by forcing UI to update
+			var ogAlignment = selectedColumn.textAlignment
+			if (ogAlignment === TextAlignment.Natural) {
+				selectedColumn.textAlignment = TextAlignment.Left
+			} else {
+				selectedColumn.textAlignment = TextAlignment.Natural
+			}
+			selectedColumn.textAlignment = ogAlignment
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION

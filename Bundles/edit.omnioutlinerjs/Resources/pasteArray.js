@@ -76,7 +76,8 @@ var _ = function(){
 			} else {
 				var text = new Text('', document.outline.baseStyle)
 			}
-			objects.forEach((obj,index) => {
+			objects.forEach((obj, index) => {
+				console.log(index, obj.types)
 				var separator = new Text('\n\n', text.style)
 				if (valueForColumn !== null && index === 0) {
 					var lastPar = valueForColumn.paragraphs[valueForColumn.paragraphs.length - 1]
@@ -84,13 +85,12 @@ var _ = function(){
 						text.append(separator)
 					}
 				}
-				
 				// Filter out proprietary Pasteboard.Item types
 				var types = obj.types.filter(type => {
 					return (type.identifier !== 'com.omnigroup.omnioutliner.pboard.xmloutline.items') && (type.identifier !== 'com.omnigroup.omnioutliner.pboard.items-v3') && (type.identifier !== 'com.omnigroup.omnistyle.pboard.xml')
 				})
 				var fileTypes = types.filter(type => {
-					return (type.identifier !== 'public.plain-text') && (type.identifier !== 'public.utf8-plain-text') && (type.identifier !== 'public.rtf')
+					return (type.pathExtensions.length > 0) && (type.identifier !== 'public.plain-text') && (type.identifier !== 'public.utf8-plain-text') && (type.identifier !== 'public.rtf') && (type.identifier !== 'public.url')
 				})
 				if (types.some(type => type.identifier === 'public.plain-text')) {
 					var str = obj.stringForType(types.find(type => type.identifier === 'public.plain-text'))
@@ -99,7 +99,6 @@ var _ = function(){
 					if ((fileTypes.length > 0) || (index < objsLen - 1)) {
 						text.append(separator)
 					}
-					
 				} else if (obj.types.some(type => type.identifier === 'public.utf8-plain-text')) {
 					var str = obj.stringForType(types.find(type => type.identifier === 'public.utf8-plain-text'))
 					var newText = new Text(str, text.style)
@@ -108,7 +107,6 @@ var _ = function(){
 						text.append(separator)
 					}
 				}
-				
 				fileTypes.forEach((type, i) => {
 					var fileExtension = fileTypes[i].pathExtensions[0]
 					var fileName = fileExtension.toUpperCase() + ' ' + index.toString() + i.toString() + '.' + fileExtension
@@ -119,8 +117,13 @@ var _ = function(){
 						text.append(separator)
 					}
 				})
-				
 			})
+			
+			// Remove trailing white spaces
+			trailingSpaceRange = text.find('\\s+$', [Text.FindOption.RegularExpression], null)
+			if (trailingSpaceRange !== null) {
+				text.remove(trailingSpaceRange)
+			}
 			
 			selectedItem.setValueForColumn(text, selectedColumn)
 		})

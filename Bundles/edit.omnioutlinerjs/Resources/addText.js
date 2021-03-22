@@ -81,25 +81,30 @@
 			var insertStr = formObject.values["textInput"]
 			var selectedColumn = formObject.values["columnInput"]
 			var selectedPosition = formObject.values["insertionPositionInput"]
-			textInsert = new Text(insertStr, document.outline.baseStyle)
 			
 			selectedItems.forEach(function(item){
-			
-				// Add to the selected column
-				targetTextObj = item.valueForColumn(selectedColumn)	
-				// When item has no content, it's not possible to get the position for insertion.
-				if (targetTextObj === null){
-					item.setValueForColumn(textInsert, selectedColumn)
-				} else {
-					textStr = targetTextObj.string
+				var targetText = item.valueForColumn(selectedColumn)
+				if (targetText !== null) {
+					var textInsert = new Text(insertStr, targetText.style)
 					if (selectedPosition === 'End') {
-						targetTextObj.insert(targetTextObj.end, textInsert)
+						targetText.append(textInsert)
 					} else if (selectedPosition === 'Start') {
-						targetTextObj.insert(targetTextObj.start, textInsert)
+						targetText.insert(targetText.start, textInsert)
 					}
-					
+				} else {
+					var textInsert = new Text(insertStr, document.outline.baseStyle)
+					item.setValueForColumn(textInsert, selectedColumn)
 				}
 			})
+			
+			// Work around a bug that crops images by forcing UI to update
+			var ogAlignment = selectedColumn.textAlignment
+			if (ogAlignment === TextAlignment.Natural) {
+				selectedColumn.textAlignment = TextAlignment.Left
+			} else {
+				selectedColumn.textAlignment = TextAlignment.Natural
+			}
+			selectedColumn.textAlignment = ogAlignment
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
