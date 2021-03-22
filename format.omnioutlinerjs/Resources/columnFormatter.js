@@ -79,12 +79,10 @@
 				var ogTimeZone = selectedColumn.formatter.timeZone.abbreviation
 				
 				// CREATE TEXT FIELD
-				var formatterField = new Form.Field.Option(
+				var formatterField = new Form.Field.Checkbox(
 					"formatterInput",
-					"Format",
-					['None', 'ISO 8601'],
-					['None', 'ISO 8601'],
-					'ISO 8601'
+					"ISO 8601",
+					false
 				)
 				var dateStyleField = new Form.Field.Option(
 					"dateStyleInput",
@@ -134,17 +132,17 @@
 					if ((formObject.values["dateStyleInput"] === 'None') && (formObject.values["timeStyleInput"] !== 'None')) {
 						throw new Error('Only formatter with a date style can have a time style.')
 						return false
-					} else if ((formObject.values["formatterInput"] === 'None') && (formObject.values["calendarInput"] !== curCalendar)) {
+					} else if ((formObject.values["formatterInput"] === false) && (formObject.values["calendarInput"] !== curCalendar)) {
 						throw new Error('Only formatter with ISO 8601 format can change calendar.')
 						return false
-					} else if ((formObject.values["formatterInput"] === 'None') && (formObject.values["timeZoneInput"] !== curTimeZone)) {
+					} else if ((formObject.values["formatterInput"] === false) && (formObject.values["timeZoneInput"] !== curTimeZone)) {
 						throw new Error('Only formatter with ISO 8601 format can change time zone.')
 						return false
-					} else if ((formObject.values["formatterInput"] !== 'None') && (formObject.values["dateStyleInput"] !== 'None')) {
-						throw new Error('Only formatter without format can apply date style.')
+					} else if ((formObject.values["formatterInput"] !== false) && (formObject.values["dateStyleInput"] !== 'None')) {
+						throw new Error('Only formatter without ISO 8601 format can apply date style.')
 						return false
-					} else if ((formObject.values["formatterInput"] !== 'None') && (formObject.values["timeStyleInput"] !== 'None')) {
-						throw new Error('Only formatter with default format can apply time style.')
+					} else if ((formObject.values["formatterInput"] !== false) && (formObject.values["timeStyleInput"] !== 'None')) {
+						throw new Error('Only formatter without ISO 8601 format can apply time style.')
 						return false
 					} else {
 						return null
@@ -160,7 +158,7 @@
 					var selectedCalendar = formObject.values["calendarInput"]
 					var selectedTimeZone = formObject.values["timeZoneInput"]
 
-					if (selectedFormatter === 'None') {
+					if (selectedFormatter === false) {
 						selectedColumn.formatter = null
 					} else {
 						selectedColumn.formatter = Formatter.Date.iso8601

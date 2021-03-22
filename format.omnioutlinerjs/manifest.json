@@ -1,4 +1,5 @@
 {"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.taxyovio.format","version":"2021.03.17","description":"A collection of Omni Automation scripts formatting data in OmniOutliner.","actions":[
+	{"image":"icon.png","identifier":"pasteStyle"},
 	{"image":"icon.png","identifier":"clearStyle"},
 	{"image":"icon.png","identifier":"lineSpacing"},
 	{"image":"icon.png","identifier":"columnFormatter"},
