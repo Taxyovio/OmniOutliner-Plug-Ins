@@ -110,27 +110,34 @@ var _ = function(){
 				if (paragraphArrayLength > 1) {
 					var counter = 0
 					var repeats = paragraphArrayLength
-					
+					//node.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[0]
 					// In the Timer, all objects get invalidated except the document object.
 					Timer.repeating(0, function(timer){
-						if (counter === repeats){
-							console.log('done')
-							timer.cancel()
-						} else {
-							console.log('counter:', counter)
-							var node = document.editors[0].selection.nodes[index]
-							var childIndex = node.index
-							document.editors[0].paste(pb, node.parent, childIndex)
-							var newNode = node.parent.children[childIndex]
-							if (selectedColumnTitle === '') {
+						var node = document.editors[0].selection.nodes[index]
+						if (selectedColumnTitle === '') {
 								var column = document.outline.noteColumn
 							} else {
 								var column = document.outline.columns.byTitle(selectedColumnTitle)
 							}
-							newNode.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[counter]
+							
+						if (counter === repeats){
+							console.log('done')
+							timer.cancel()
+						} else if (counter === 0) {
+							node.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[0]
 							counter = counter + 1
-						}
+						} else {
+							console.log('counter:', counter)
+							var childIndex = node.index
+							document.editors[0].paste(pb, node.parent, childIndex)
+							var newNode = node.parent.children[childIndex]
+							if (paragraphStringArray.slice().reverse()[counter] !== null) {
+								newNode.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[counter]
+							}
+							counter = counter + 1
+						} 
 					})
+					
 				} else {
 					alert = new Alert('Error', 'Not enough paragraphs are found.')
 					alert.show()
