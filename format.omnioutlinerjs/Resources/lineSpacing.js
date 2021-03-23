@@ -1,9 +1,11 @@
-// This action sets the line spacing as a multiple of font size for baseStyle of the whole document.
+// This action sets the line spacing as a multiple of font size for the selected rows.
 var _ = function(){
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
+		var items = selection.items
+		
 		var fontSize = parseFloat(document.outline.baseStyle.get(Style.Attribute.FontSize).toString())
 		var curSpacing = parseFloat(document.outline.baseStyle.get(Style.Attribute.ParagraphLineSpacing).toString())
 		var relativeHight = curSpacing / fontSize
@@ -40,14 +42,16 @@ var _ = function(){
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 		formPromise.then(function(formObject){
 			var relativeHight = formObject.values["spacingInput"]
-			document.outline.baseStyle.set(Style.Attribute.ParagraphLineSpacing, fontSize * relativeHight)
+			items.forEach(item => {
+				item.style.set(Style.Attribute.ParagraphLineSpacing, fontSize * relativeHight)
+			})
 		})
 	});
 
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if (document !== null) {return true}
+		if (selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;

@@ -1,4 +1,4 @@
-"label" = "Share Item";
-"shortLabel" = "Item";
+"label" = "Share Topic";
+"shortLabel" = "Share Topic";
 "mediumLabel" = "Share Item Topic";
-"LongLabel" = "Share the Topic column texts from selected items";
+"LongLabel" = "Share the Topic column texts from selected rows";

@@ -45,12 +45,18 @@
 			defaultText
 		)
 		
+		if (filteredColumns.includes(document.outline.outlineColumn)) {
+			var defaultColumn = document.outline.outlineColumn
+		} else {
+			var defaultColumn = document.outline.noteColumn
+		}
+		
 		var columnField = new Form.Field.Option(
 			"columnInput",
 			"Column",
 			filteredColumns,
 			filteredColumnTitles,
-			document.outline.outlineColumn
+			defaultColumn
 		)
 		
 		var insertionPositionField = new Form.Field.Option(

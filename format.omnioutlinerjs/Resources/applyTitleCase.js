@@ -42,12 +42,18 @@
 		
 		// CREATE TEXT FIELD
 		
+		if (filteredColumns.includes(document.outline.outlineColumn)) {
+			var defaultColumn = document.outline.outlineColumn
+		} else {
+			var defaultColumn = document.outline.noteColumn
+		}
+		
 		var columnField = new Form.Field.Option(
 			"columnInput",
 			"Column",
 			filteredColumns,
 			filteredColumnTitles,
-			document.outline.outlineColumn
+			defaultColumn
 		)
 		
 		// ADD THE FIELDS TO THE FORM
