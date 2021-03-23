@@ -4,14 +4,78 @@ var _ = function(){
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
-		wordcount = 0
-		selection.items.forEach(function(item){
-			// Get the text object from topic column
-			var textObj = item.valueForColumn(document.outline.outlineColumn)
-			wordcount = wordcount + textObj.words.length
+		var wordcount = 0
+		
+		// List all visible text columns
+		var editor = document.editors[0]
+		var filteredColumns = columns.filter(function(column){
+			if (editor.visibilityOfColumn(column)){
+				if (column.type === Column.Type.Text){return column}
+			}
 		})
-		alert = new Alert('Word Count', wordcount.toString())
-		alert.show()
+		
+		if (filteredColumns.length === 0) {
+			throw new Error("This document has no text columns.")
+		}
+		
+		
+		var filteredColumnTitles = filteredColumns.map(function(column){
+			if (column.title !== ''){
+				return column.title
+			} else if (column === document.outline.noteColumn){
+			// The note column has empty title for unknown reason
+				return 'Notes'
+			}
+		})
+		
+		// CREATE FORM FOR GATHERING USER INPUT
+		var inputForm = new Form()
+		
+		if (filteredColumns.includes(document.outline.outlineColumn)) {
+			var defaultColumn = document.outline.outlineColumn
+		} else {
+			var defaultColumn = document.outline.noteColumn
+		}
+		
+		var columnField = new Form.Field.Option(
+			"columnInput",
+			"Column",
+			filteredColumns,
+			filteredColumnTitles,
+			defaultColumn
+		)
+		
+		// ADD THE FIELDS TO THE FORM
+		inputForm.addField(columnField)
+		// PRESENT THE FORM TO THE USER
+		formPrompt = "Select Column:"
+		formPromise = inputForm.show(formPrompt,"Continue")
+		
+		// VALIDATE THE USER INPUT
+		inputForm.validate = function(formObject){
+			return null
+		}
+	
+		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
+		formPromise.then(function(formObject){
+			var selectedColumn = formObject.values["columnInput"]
+			
+			selection.items.forEach(function(item){
+				var textObj = item.valueForColumn(selectedColumn)
+				if (textObj !== null) {
+					wordcount = wordcount + textObj.words.length
+				}
+			})
+			alert = new Alert('Word Count', wordcount.toString())
+			alert.show()
+		})
+		
+		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
+		formPromise.catch(function(err){
+			console.log("form cancelled", err.message)
+		})
+		
+		
 	});
 
 	action.validate = function(selection, sender) {
