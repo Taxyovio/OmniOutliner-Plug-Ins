@@ -1,0 +1,4 @@
+"label" = "Character Count";
+"shortLabel" = "Character Count";
+"mediumLabel" = "Character Count";
+"LongLabel" = "Show the total character count in selected rows";
