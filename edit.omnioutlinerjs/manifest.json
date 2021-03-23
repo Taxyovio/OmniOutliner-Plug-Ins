@@ -3,4 +3,5 @@
 	{"image":"icon.png","identifier":"pasteArray"},
 	{"image":"icon.png","identifier":"addText"},
 	{"image":"icon.png","identifier":"addLink"},
+	{"image":"icon.png","identifier":"duplicateColumn"},
 ],"defaultLocale":"en"}
