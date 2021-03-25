@@ -3,7 +3,7 @@
 	var action = new PlugIn.Action(function(selection, sender){
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
-		var selectedItems = selection.items
+		var selectedItem = selection.items[0]
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
@@ -30,20 +30,9 @@
 			}
 		})
 		
-		var defaultText = ''
-		if (Pasteboard.general.hasStrings) {
-			var defaultText = Pasteboard.general.string
-		}
 		
 		// CREATE FORM FOR GATHERING USER INPUT
 		var inputForm = new Form()
-		
-		// CREATE TEXT FIELD
-		var textField = new Form.Field.String(
-			"textInput",
-			"Text",
-			defaultText
-		)
 		
 		if (filteredColumns.includes(document.outline.outlineColumn)) {
 			var defaultColumn = document.outline.outlineColumn
@@ -59,50 +48,55 @@
 			defaultColumn
 		)
 		
-		var insertionPositionField = new Form.Field.Option(
-			"insertionPositionInput",
-			"Position",
-			["End", "Start"],
-			null,
-			"End"
-		)
-		
 		// ADD THE FIELDS TO THE FORM
-		inputForm.addField(textField)
 		inputForm.addField(columnField)
-		inputForm.addField(insertionPositionField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Enter Text and select Column Position:"
+		formPrompt = "Select Column:"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
 		inputForm.validate = function(formObject){
-			var textValue = formObject.values["textInput"]
-			var textStatus = (textValue && textValue.length > 0) ? true:false
-			return textStatus
+			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 		formPromise.then(function(formObject){
-			var insertStr = formObject.values["textInput"]
 			var selectedColumn = formObject.values["columnInput"]
-			var selectedPosition = formObject.values["insertionPositionInput"]
+			var picker = new FilePicker()
+			picker.folders = false
+			picker.multiple = true
+			picker.types = null
 			
-			selectedItems.forEach(function(item){
-				var targetText = item.valueForColumn(selectedColumn)
-				if (targetText !== null) {
-					var textInsert = new Text(insertStr, targetText.style)
-					if (selectedPosition === 'End') {
-						targetText.append(textInsert)
-					} else if (selectedPosition === 'Start') {
-						targetText.insert(targetText.start, textInsert)
-					}
-				} else {
-					var textInsert = new Text(insertStr, document.outline.baseStyle)
-					item.setValueForColumn(textInsert, selectedColumn)
-				}
+			pickerPromise = picker.show()
+			
+			// PROMISE FUNCTION CALLED UPON PICKER APPROVAL
+			pickerPromise.then(function(urlsArray){
+				urlsArray.forEach(url => {
+					urlStr = url.string
+					// GET FILE NAME
+					var filename = urlStr.substring(urlStr.lastIndexOf('/')+1)
+					// REMOVE FILE EXTENSION AND ENCODING
+					var baseName = filename.substring(0,filename.lastIndexOf('.'))
+					baseName = decodeURIComponent(baseName)
+					// IMPORT FILES
+					url.fetch(function(data){
+						wrapper = FileWrapper.withContents(filename,data)
+						ogText = selectedItem.valueForColumn(selectedColumn)
+						if (ogText !== null) {
+							textObj = Text.makeFileAttachment(wrapper, ogText.style)
+							ogText.append(textObj)
+						} else {
+							textObj = Text.makeFileAttachment(wrapper, document.outline.baseStyle)
+							selectedItem.setValueForColumn(textObj, selectedColumn)
+						}
+					})
+				})
 			})
-			
+
+			// PROMISE FUNCTION CALLED UPON PICKER CANCELLATION
+			pickerPromise.catch(function(error){
+				console.log("form cancelled", error.message)
+			})		
 			// Work around a bug that crops images by forcing UI to update
 			var ogAlignment = selectedColumn.textAlignment
 			if (ogAlignment === TextAlignment.Natural) {
@@ -121,7 +115,7 @@
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.nodes.length > 0){return true} else {return false}
+		if(selection.nodes.length === 1){return true} else {return false}
 	};
 	
 	return action;

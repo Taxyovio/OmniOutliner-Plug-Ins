@@ -28,28 +28,17 @@ var _ = function(){
 				return 'Notes'
 			}
 		})
-		// Rename columns with the same titles
+		// Rename columns with the same titles temporarily to work around bugs in Timer and Tree.paste
 		if (hasDuplicates(filteredColumnTitles)) {
-			var alertTitle = "Confirmation"
-			var alertMessage = "Some columns have the same title.\nRename duplicated titles?"
-			var alert = new Alert(alertTitle, alertMessage)
-			alert.addOption("Continue")
-			alert.addOption("Stop")
-			var alertPromise = alert.show()
-			
-			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 0){
-					console.log("Continue script")
-					filteredColumnTitles = renameStrings(filteredColumnTitles)
-					filteredColumns.forEach((column,index) => {
-						if (column.title !== ''){
-							if (column.title !== filteredColumnTitles[index]) {
-								column.title = filteredColumnTitles[index]
-							}
-						}
-					})
-				} else {
-					throw new Error('script cancelled')
+			var duplicateColumns = {"columns":[], "titles":[]}
+			filteredColumnTitles = renameStrings(filteredColumnTitles)
+			filteredColumns.forEach((column,index) => {
+				if (column.title !== ''){
+					if (column.title !== filteredColumnTitles[index]) {
+						duplicateColumns.columns.push(column)
+						duplicateColumns.titles.push(column.title)
+						column.title = filteredColumnTitles[index]
+					}
 				}
 			})
 		}
@@ -143,6 +132,11 @@ var _ = function(){
 					alert.show()
 				}
 			})
+			
+			duplicateColumns.columns.forEach((column, index) => {
+				column.title = duplicateColumns.titles[index]
+			})
+			
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
@@ -167,7 +161,7 @@ function renameStrings(arr){
 		if (arr.indexOf(x) !== i) {
 			var c = x in count ? count[x] = count[x] + 1 : count[x] = 1
 			var j = c + 1
-			var k = x + ' ' + j
+			var k = x + ' '.repeat(j) + j
 			while(arr.indexOf(k) !== -1) k = x + ' ' + (++j)
 			arr[i] = k
 		}
