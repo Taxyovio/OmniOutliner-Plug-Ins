@@ -161,7 +161,7 @@ function renameStrings(arr){
 		if (arr.indexOf(x) !== i) {
 			var c = x in count ? count[x] = count[x] + 1 : count[x] = 1
 			var j = c + 1
-			var k = x + ' '.repeat(j) + j
+			var k = x + ' '.repeat(j)
 			while(arr.indexOf(k) !== -1) k = x + ' ' + (++j)
 			arr[i] = k
 		}
