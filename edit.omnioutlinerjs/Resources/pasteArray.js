@@ -80,7 +80,7 @@ var _ = function(){
 			if (valueForColumn !== null) {
 				var text = valueForColumn
 			} else {
-				var text = new Text('', document.outline.baseStyle)
+				var text = new Text('', selectedItem.style)
 			}
 			objects.forEach((obj, index) => {
 				console.log(index, obj.types)

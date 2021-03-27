@@ -7,14 +7,10 @@
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		visibleTextColumns = columns.map(function(column){
+		var filteredColumns = columns.filter(function(column){
 			if (editor.visibilityOfColumn(column)){
 				if (column.type === Column.Type.Text){return column}
 			}
-		})
-		
-		filteredColumns = visibleTextColumns.filter(el => {
-			return el !== null && el !== undefined;
 		})
 		
 		if (filteredColumns.length === 0) {
@@ -26,7 +22,7 @@
 				return column.title
 			} else if (column === document.outline.noteColumn){
 			// The note column has empty title for unknown reason
-				return 'Note'
+				return 'Notes'
 			}
 		})
 		
@@ -86,7 +82,7 @@
 							textObj = Text.makeFileAttachment(wrapper, ogText.style)
 							ogText.append(textObj)
 						} else {
-							textObj = Text.makeFileAttachment(wrapper, document.outline.baseStyle)
+							textObj = Text.makeFileAttachment(wrapper, selectedItem.style)
 							selectedItem.setValueForColumn(textObj, selectedColumn)
 						}
 					})

@@ -26,7 +26,7 @@
 				return column.title
 			} else if (column === document.outline.noteColumn){
 			// The note column has empty title for unknown reason
-				return 'Note'
+				return 'Notes'
 			}
 		})
 		
@@ -98,7 +98,7 @@
 						targetText.insert(targetText.start, textInsert)
 					}
 				} else {
-					var textInsert = new Text(insertStr, document.outline.baseStyle)
+					var textInsert = new Text(insertStr, item.style)
 					item.setValueForColumn(textInsert, selectedColumn)
 				}
 			})
