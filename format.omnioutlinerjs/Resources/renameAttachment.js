@@ -17,7 +17,7 @@
 			}
 		})
 		if (textColumns.length === 0) {
-			throw new Error("No text columns are found.")
+			throw new Error("This document has no text columns.")
 		}
 		
 		// GET ARRAY OF FILEWRAPPERS FOR ATTACHED FILES
@@ -25,6 +25,7 @@
 		selection.items.forEach(row => {
 			textColumns.forEach(col => {
 				if (row.valueForColumn(col)) {
+					var style = row.valueForColumn(col).style
 					var atts = row.valueForColumn(col).attachments
 					var attRanges = row.valueForColumn(col).ranges(TextComponent.Attachments)
 					if (atts) {
@@ -33,29 +34,30 @@
 							var wrapper = att.fileWrapper
 							var range = attRanges[index]
 							if(wrapper.type === FileWrapper.Type.File){
-								// Replace illegal characters in filenames to similar but legal ones
-								var filename = wrapper.preferredFilename 
-								filename = filename.replace(/\//g, '⧸')
-								filename = filename.replace(/\\/g, '⧹')
-								filename = filename.replace(/</g, '＜')
-								filename = filename.replace(/>/g, '＞')
-								filename = filename.replace(/:/g, '：')
-								filename = filename.replace(/"/g, '＂')
-								filename = filename.replace(/\|/g, '⏐')
-								filename = filename.replace(/\?/g, '？')
-								filename = filename.replace(/\*/g, '＊')
+								
+								var filename = wrapper.preferredFilename
+								filename = legaliseFileName(filename)
+								var baseName = filename.substring(0,filename.lastIndexOf('.'))
+								var extension = filename.substring(filename.lastIndexOf('.') + 1, filename.length)
 								
 								// CREATE FORM FOR GATHERING USER INPUT
 								var inputForm = new Form()
 								// CREATE TEXT FIELD
-								var textField = new Form.Field.String(
-									"textInput",
-									"Filename",
-									filename
+								var baseNameField = new Form.Field.String(
+									"baseNameInput",
+									"Base Name",
+									baseName
+								)
+								
+								var extensionField = new Form.Field.String(
+									"extensionInput",
+									"Extension",
+									extension
 								)
 								
 								// ADD THE FIELDS TO THE FORM
-								inputForm.addField(textField)
+								inputForm.addField(baseNameField)
+								inputForm.addField(extensionField)
 								
 								// PRESENT THE FORM TO THE USER
 								formPrompt = ""
@@ -63,17 +65,30 @@
 								
 								// VALIDATE THE USER INPUT
 								inputForm.validate = function(formObject){
-									var textValue = formObject.values["textInput"]
-									var textStatus = (textValue && textValue.length > 0) ? true:false
-									return textStatus
+									if (/\s/.test(formObject.values["extensionInput"].trim())) {
+										return false
+									} else {
+										var textValue = formObject.values["baseNameInput"]
+										var textStatus = (textValue && textValue.length > 0) ? true:false
+										return textStatus
+									}
 								}
 							
 								// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 								formPromise.then(function(formObject){
+									var newBaseName = legaliseFileName(formObject.values["baseNameInput"])
+									var newExtension = formObject.values["extensionInput"]
+									if (newExtension !== '') {
+										var newFilename = newBaseName + '.' + newExtension
+									} else {
+										var newFilename = newBaseName
+									}
+									
+									
 									// As attachments are read only, we need to replace the old one with new one instead of renaming the old one directly.
-									if (filename !== formObject.values["textInput"]) {
-										var newWrapper = FileWrapper.withContents(formObject.values["textInput"], wrapper.contents)
-										var textObj = Text.makeFileAttachment(newWrapper, document.outline.baseStyle)
+									if (wrapper.preferredFilename !== newFilename) {
+										var newWrapper = FileWrapper.withContents(newFilename, wrapper.contents)
+										var textObj = Text.makeFileAttachment(newWrapper, style)
 										row.valueForColumn(col).replace(range, textObj)
 									}
 									
@@ -87,7 +102,16 @@
 						})
 					}
 				}
-			})
+				
+				// Work around a bug that crops images by forcing UI to update
+				var ogAlignment = col.textAlignment
+				if (ogAlignment === TextAlignment.Natural) {
+					col.textAlignment = TextAlignment.Left
+				} else {
+					col.textAlignment = TextAlignment.Natural
+				}
+				col.textAlignment = ogAlignment
+				})
 		})
 		if (numberOfAtts === 0) {
 			throw new Error("No attachments are found.")
@@ -101,4 +125,18 @@
 	};
 	
 	return action;
-	})();
+})();
+
+// Replace illegal characters in filenames to similar but legal ones
+function legaliseFileName(filename) {
+	filename = filename.replace(/\//g, '⧸')
+	filename = filename.replace(/\\/g, '⧹')
+	filename = filename.replace(/</g, '＜')
+	filename = filename.replace(/>/g, '＞')
+	filename = filename.replace(/:/g, '：')
+	filename = filename.replace(/"/g, '＂')
+	filename = filename.replace(/\|/g, '⏐')
+	filename = filename.replace(/\?/g, '？')
+	filename = filename.replace(/\*/g, '＊')
+	return filename
+}
