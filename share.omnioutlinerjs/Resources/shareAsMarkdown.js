@@ -4,24 +4,6 @@ var _ = function() {
 	var action = new PlugIn.Action(function(selection, sender){
 		var selectedItems = selection.items
 		
-		if (selectedItems.length < 2) {
-			var alertTitle = "Confirmation"
-			var alertMessage = "Export the whole document?"
-			var alert = new Alert(alertTitle, alertMessage)
-			alert.addOption("Continue")
-			alert.addOption("Stop")
-			var alertPromise = alert.show()
-			
-			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 0){
-					console.log("Continue script")
-					selectedItems = rootItem.descendants
-				} else {
-					throw new Error('script cancelled')
-				}
-			})
-		}
-	
 		// List all visible text columns
 		var editor = document.editors[0]
 		var filteredColumns = columns.filter(function(column){
@@ -157,11 +139,7 @@ var _ = function() {
 	
 	
 	action.validate = function(selection, sender){
-		if(typeof rootItem !== 'undefined') {
-			if (rootItem.descendants.length > 0){
-				return true
-			}
-		} else if (selection.items.length > 1) {
+		if (selection.items.length !== 1) {
 			return true
 		} else {
 			return false
