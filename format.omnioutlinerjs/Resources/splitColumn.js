@@ -143,17 +143,18 @@ var _ = function(){
 							timer.cancel()
 						} else if (counter === 0) {
 							console.log('counter: ', counter)
-							node.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[0]
 							counter = counter + 1
+							node.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[0]
 						} else {
 							console.log('counter: ', counter)
+							counter = counter + 1
 							var childIndex = node.index
 							document.editors[0].paste(pb, node.parent, childIndex)
 							var newNode = node.parent.children[childIndex]
-							if (paragraphStringArray.slice().reverse()[counter] !== null) {
-								newNode.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[counter]
+							if (paragraphStringArray.slice().reverse()[counter - 1] !== null) {
+								newNode.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[counter - 1]
 							}
-							counter = counter + 1
+							
 						} 
 					})
 					
@@ -186,7 +187,7 @@ function renameStrings(arr){
 		if (arr.indexOf(x) !== i) {
 			var c = x in count ? count[x] = count[x] + 1 : count[x] = 1
 			var j = c + 1
-			var k = x + ' '.repeat(j) + j
+			var k = x + ' '.repeat(j)
 			while(arr.indexOf(k) !== -1) k = x + ' ' + (++j)
 			arr[i] = k
 		}
