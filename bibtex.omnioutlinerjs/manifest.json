@@ -1,0 +1,8 @@
+{"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"},{"identifier":"Parser"}],"identifier":"com.taxyovio.bibtex","version":"2021.03.25","description":"A BibTeX reference manager based on Omni Automation in OmniOutliner.","actions":[
+	{"image":"icon.png","identifier":"copyKey"},
+	{"image":"icon.png","identifier":"copyBIBITEM"},
+	{"image":"icon.png","identifier":"uniqueKey"},
+	{"image":"icon.png","identifier":"importAttachment"},
+	{"image":"icon.png","identifier":"importBibTeX"},
+	{"image":"icon.png","identifier":"exportBibTeX"},
+],"defaultLocale":"en"}
