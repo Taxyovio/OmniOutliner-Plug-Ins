@@ -5,5 +5,5 @@
 	{"image":"icon.png","identifier":"columnFormatter"},
 	{"image":"icon.png","identifier":"applyTitleCase"},
 	{"image":"icon.png","identifier":"splitColumn"},
-	{"image":"icon.png","identifier":"renameAttachment"},
+	{"image":"icon.png","identifier":"trimColumn"},
 ],"defaultLocale":"en"}

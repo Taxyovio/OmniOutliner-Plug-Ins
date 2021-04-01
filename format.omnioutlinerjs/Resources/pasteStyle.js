@@ -97,7 +97,7 @@ var _ = function(){
 		
 		
 		
-		formPrompt = "Select Paste Targets:"
+		formPrompt = "Select Paste Target"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT

@@ -55,7 +55,7 @@
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(columnField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Select Column:"
+		formPrompt = "Select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -84,100 +84,130 @@
 					"ISO 8601",
 					false
 				)
-				var dateStyleField = new Form.Field.Option(
-					"dateStyleInput",
-					"Date Style",
-					[Formatter.Date.Style.Full, Formatter.Date.Style.Long, Formatter.Date.Style.Medium, Formatter.Date.Style.Short, 'None'],
-					['Full', 'Long', 'Medium', 'Short', 'None'],
-					'None'
-				)
 				
-				var timeStyleField = new Form.Field.Option(
-					"timeStyleInput",
-					"Time Style",
-					[Formatter.Date.Style.Full, Formatter.Date.Style.Long, Formatter.Date.Style.Medium, Formatter.Date.Style.Short, 'None'],
-					['Full', 'Long', 'Medium', 'Short', 'None'],
-					'None'
-				)
+				var defaultDateStyle = Formatter.Date.Style.Short
+				var dateStyleField = function (style) {
+					return new Form.Field.Option(
+						"dateStyleInput",
+						"Date Style",
+						[Formatter.Date.Style.Full, Formatter.Date.Style.Long, Formatter.Date.Style.Medium, Formatter.Date.Style.Short],
+						['Full', 'Long', 'Medium', 'Short'],
+						style
+					)
+				}
 				
-				var calendarField = new Form.Field.Option(
-					"calendarInput",
-					"Calendar",
-					['iso8601', 'buddhist', 'chinese', 'coptic', 'ethiopicAmeteAlem', 'ethiopicAmeteMihret', 'gregorian', 'hebrew', 'islamic', 'islamicCivil', 'islamicTabular', 'islamicUmmAlQura', 'japanese', 'persian', 'republicOfChina'],
-					['ISO 8601', 'Buddhist', 'Chinese', 'Coptic', 'Ethiopic Amete Alem', 'Ethiopic Amete Mihret', 'Gregorian', 'Hebrew', 'Islamic', 'Islamic Civil', 'Islamic Tabular', 'Islamic Umm al-Qura', 'Japanese', 'Persian', 'Republic Of China'],
-					curCalendar
-				)
-
-				var timeZoneField = new Form.Field.Option(
-					"timeZoneInput",
-					"Time Zone",
-					TimeZone.abbreviations,
-					null,
-					curTimeZone
-				)
+				var defaultTimeStyle = 'none'
+				var timeStyleField = function (style) {
+					return new Form.Field.Option(
+						"timeStyleInput",
+						"Time Style",
+						[Formatter.Date.Style.Full, Formatter.Date.Style.Long, Formatter.Date.Style.Medium, Formatter.Date.Style.Short, 'none'],
+						['Full', 'Long', 'Medium', 'Short', 'None'],
+						style
+					)
+				}
+				
+				var defaultCalendar = curCalendar
+				var calendarField = function (str) {
+					return new Form.Field.Option(
+						"calendarInput",
+						"Calendar",
+						['iso8601', 'buddhist', 'chinese', 'coptic', 'ethiopicAmeteAlem', 'ethiopicAmeteMihret', 'gregorian', 'hebrew', 'islamic', 'islamicCivil', 'islamicTabular', 'islamicUmmAlQura', 'japanese', 'persian', 'republicOfChina'],
+						['ISO 8601', 'Buddhist', 'Chinese', 'Coptic', 'Ethiopic Amete Alem', 'Ethiopic Amete Mihret', 'Gregorian', 'Hebrew', 'Islamic', 'Islamic Civil', 'Islamic Tabular', 'Islamic Umm al-Qura', 'Japanese', 'Persian', 'Republic Of China'],
+						str
+					)
+				}
+				
+				var defaultTimeZone = curTimeZone
+				var timeZoneField = function (str) {
+					return new Form.Field.Option(
+						"timeZoneInput",
+						"Time Zone",
+						TimeZone.abbreviations,
+						null,
+						str
+					)
+				}
+					
 				
 				// ADD THE FIELDS TO THE FORM
 				formatterForm.addField(formatterField)
-				formatterForm.addField(dateStyleField)
-				formatterForm.addField(timeStyleField)
-				formatterForm.addField(calendarField)
-				formatterForm.addField(timeZoneField)
+				formatterForm.addField(dateStyleField(defaultDateStyle))
+				formatterForm.addField(timeStyleField(defaultTimeStyle))
+				//formatterForm.addField(calendarField)
+				//formatterForm.addField(timeZoneField)
 
 				// PRESENT THE FORM TO THE USER
-				formatterFormPrompt = "Select Formatter:"
+				formatterFormPrompt = "Select Formatter"
 				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
 				
 				// VALIDATE THE USER INPUT
 				formatterForm.validate = function(formObject){
-					if ((formObject.values["dateStyleInput"] === 'None') && (formObject.values["timeStyleInput"] !== 'None')) {
-						throw new Error('Only formatter with a date style can have a time style.')
-						return false
-					} else if ((formObject.values["formatterInput"] === false) && (formObject.values["calendarInput"] !== curCalendar)) {
-						throw new Error('Only formatter with ISO 8601 format can change calendar.')
-						return false
-					} else if ((formObject.values["formatterInput"] === false) && (formObject.values["timeZoneInput"] !== curTimeZone)) {
-						throw new Error('Only formatter with ISO 8601 format can change time zone.')
-						return false
-					} else if ((formObject.values["formatterInput"] !== false) && (formObject.values["dateStyleInput"] !== 'None')) {
-						throw new Error('Only formatter without ISO 8601 format can apply date style.')
-						return false
-					} else if ((formObject.values["formatterInput"] !== false) && (formObject.values["timeStyleInput"] !== 'None')) {
-						throw new Error('Only formatter without ISO 8601 format can apply time style.')
-						return false
-					} else {
-						return null
-					}
+					var keys = formObject.fields.map(field => field.key)
 					
+					if (formObject.values["formatterInput"] === true) {
+						if (keys.indexOf('timeStyleInput') !== -1) {
+							defaultTimeStyle = formObject.values['timeStyleInput']
+							formObject.removeField(formObject.fields[keys.indexOf('timeStyleInput')])
+						}
+						if (keys.indexOf('dateStyleInput') !== -1) {
+							defaultDateStyle = formObject.values['dateStyleInput']
+							formObject.removeField(formObject.fields[keys.indexOf('dateStyleInput')])
+						}
+						
+						if (keys.indexOf('calendarInput') === -1) {
+							formObject.addField(calendarField(defaultCalendar), 1)
+						}
+						if (keys.indexOf('timeZoneInput') === -1) {
+							formObject.addField(timeZoneField(defaultTimeZone), 2)
+						}
+					} else {
+						
+						if (keys.indexOf('timeZoneInput') !== -1) {
+							defaultTimeZone = formObject.values['timeZoneInput']
+							formObject.removeField(formObject.fields[keys.indexOf('timeZoneInput')])
+						}
+						if (keys.indexOf('calendarInput') !== -1) {
+							defaultCalendar = formObject.values['calendarInput']
+							formObject.removeField(formObject.fields[keys.indexOf('calendarInput')])
+						}
+						
+						if (keys.indexOf('dateStyleInput') === -1) {
+							formObject.addField(dateStyleField(defaultDateStyle), 1)
+						}
+						
+						if (keys.indexOf('timeStyleInput') === -1) {
+							formObject.addField(timeStyleField(defaultTimeStyle), 2)
+						}
+					}
+					return null
 				}
 			
 				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 				formatterFormPromise.then(function(formObject){
 					var selectedFormatter = formObject.values["formatterInput"]
-					var selectedDateStyle = formObject.values["dateStyleInput"]
-					var selectedTimeStyle = formObject.values["timeStyleInput"]
+					
 					var selectedCalendar = formObject.values["calendarInput"]
 					var selectedTimeZone = formObject.values["timeZoneInput"]
 
 					if (selectedFormatter === false) {
 						selectedColumn.formatter = null
+						var selectedDateStyle = formObject.values["dateStyleInput"]
+						if (formObject.values["timeStyleInput"] === 'none') {
+							var selectedTimeStyle = null
+						} else {
+							var selectedTimeStyle = formObject.values["timeStyleInput"]
+						}
+						selectedColumn.formatter = Formatter.Date.withStyle(selectedDateStyle, selectedTimeStyle)
 					} else {
 						selectedColumn.formatter = Formatter.Date.iso8601
-					}
-					
-					if (selectedDateStyle !== 'None') {
-						if (selectedTimeStyle === 'None') {
-							selectedColumn.formatter = Formatter.Date.withStyle(selectedDateStyle)
-						} else {
-							selectedColumn.formatter = Formatter.Date.withStyle(selectedDateStyle, selectedTimeStyle)
+						if (selectedCalendar !== ogCalendar) {
+							var cal = eval('Calendar.' + selectedCalendar)
+							selectedColumn.formatter.calendar = cal
 						}
-					}
-					
-					if (selectedCalendar !== ogCalendar) {
-						var cal = eval('Calendar.' + selectedCalendar)
-						selectedColumn.formatter.calendar = cal
-					}
-					if (selectedTimeZone !== ogTimeZone) {
-						selectedColumn.formatter.timeZone = new TimeZone(selectedTimeZone)
+						if (selectedTimeZone !== ogTimeZone) {
+							selectedColumn.formatter.timeZone = new TimeZone(selectedTimeZone)
+						}
 					}
 				})
 				
@@ -227,7 +257,7 @@
 				formatterForm.addField(dayField)
 				formatterForm.addField(weekField)
 				// PRESENT THE FORM TO THE USER
-				formatterFormPrompt = "Select Formatter:"
+				formatterFormPrompt = "Select Formatter"
 				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
 				
 				// VALIDATE THE USER INPUT
@@ -277,7 +307,7 @@
 					currencyCodes.push(loc.currencyCode)
 				})
 				currencyCodes = currencyCodes.filter(el => {
-					return el !== null && el !== undefined;
+					return el
 				})
 				currencyCodes = currencyCodes.filter(onlyUnique)
 				currencyCodes.sort()
@@ -305,7 +335,7 @@
 				formatterForm.addField(currencyField)
 				
 				// PRESENT THE FORM TO THE USER
-				formatterFormPrompt = "Select Formatter:"
+				formatterFormPrompt = "Select Formatter"
 				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
 				
 				// VALIDATE THE USER INPUT
@@ -349,7 +379,7 @@
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if (document !== null) {return true} else {return false}
+		if (document) {return true} else {return false}
 	};
 	
 	return action;

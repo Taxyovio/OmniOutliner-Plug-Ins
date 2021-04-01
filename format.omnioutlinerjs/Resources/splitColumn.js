@@ -52,7 +52,7 @@ var _ = function(){
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(columnField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Select Column:"
+		formPrompt = "Select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -90,12 +90,12 @@ var _ = function(){
 				var textObj = node.valueForColumn(selectedColumn)
 				var paragraphArray = textObj.paragraphs
 				var paragraphStringArray = paragraphArray.map(function(par){
-					if (par.string !== null && /\S/.test(par.string)) {
+					if (par.string && /\S/.test(par.string)) {
 						return par.string.trim()
 					}
 				})
 				var paragraphStringArray = paragraphStringArray.filter(el => {
-					return el !== null && el !== undefined;
+					return el
 				})
 				
 				var paragraphArrayLength = paragraphStringArray.length
@@ -110,30 +110,30 @@ var _ = function(){
 					Timer.repeating(0, function(timer){
 						var node = document.editors[0].selection.nodes[index]
 						if (selectedColumnTitle === '') {
-								var column = document.outline.noteColumn
-							} else {
-								var editor = document.editors[0]
-								
-								var filteredColumns = columns.filter(function(column){
-									if (editor.visibilityOfColumn(column)){
-										if (column.type === Column.Type.Text){return column}
-									}
-								})
-								
-								
-								var filteredColumnTitles = filteredColumns.map(function(column){
-									if (column.title !== ''){
-										return column.title
-									} else if (column === document.outline.noteColumn){
-									// The note column is the only text column with empty title
-										return 'Notes'
-									}
-								})
-								var column = columnByTitle(filteredColumns, selectedColumnTitle)
-							}
+							var column = document.outline.noteColumn
+						} else {
+							var editor = document.editors[0]
 							
+							var filteredColumns = columns.filter(function(column){
+								if (editor.visibilityOfColumn(column)){
+									if (column.type === Column.Type.Text){return column}
+								}
+							})
+							
+							
+							var filteredColumnTitles = filteredColumns.map(function(column){
+								if (column.title !== ''){
+									return column.title
+								} else if (column === document.outline.noteColumn){
+								// The note column is the only text column with empty title
+									return 'Notes'
+								}
+							})
+							var column = columnByTitle(filteredColumns, selectedColumnTitle)
+						}
+						
 						if (counter === repeats){
-							if (duplicateColumnTitles !== undefined && duplicateColumnTitles !== null) {
+							if (duplicateColumnTitles) {
 								duplicateColumnTitles.forEach((title, i) => {
 									columns[duplicateColumnIndices[i]].title = title
 								})
@@ -151,7 +151,7 @@ var _ = function(){
 							var childIndex = node.index
 							document.editors[0].paste(pb, node.parent, childIndex)
 							var newNode = node.parent.children[childIndex]
-							if (paragraphStringArray.slice().reverse()[counter - 1] !== null) {
+							if (paragraphStringArray.slice().reverse()[counter - 1]) {
 								newNode.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[counter - 1]
 							}
 							
