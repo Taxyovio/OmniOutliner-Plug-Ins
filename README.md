@@ -1,6 +1,6 @@
 # OmniOutliner Plug-Ins
 ##  Introduction
-This is a collection of Omni-Automation scripts for OmniOutliner, organised into 5 bundle plug-ins: 
+This is a collection of [Omni Automation](https://omni-automation.com) scripts for OmniOutliner, organised into 5 bundle plug-ins: 
 
 - Edit
 - Format
