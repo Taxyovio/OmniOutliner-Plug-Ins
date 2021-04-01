@@ -54,11 +54,14 @@ var _ = function(){
 			document.outline.noteColumn
 		)
 		
-		var checklistField = new Form.Field.Checkbox(
-			"checklistInput",
-			"Checklist",
-			false
-		)
+		var defaultChecklist = false
+		var checklistField = function (bool) {
+			return new Form.Field.Checkbox(
+				"checklistInput",
+				"Checklist",
+				bool
+			)
+		}
 		
 		var linkBackField = new Form.Field.Checkbox(
 			"linkBackInput",
@@ -72,7 +75,7 @@ var _ = function(){
 			true
 		)
 		
-		if (columns.byTitle('When') !== null && columns.byTitle('When').type === Column.Type.Date) {
+		if (columns.byTitle('When') && columns.byTitle('When').type === Column.Type.Date) {
 			var defaultWhen = true
 		} else {
 			var defaultWhen = false
@@ -84,13 +87,16 @@ var _ = function(){
 			defaultWhen
 		)
 		
-		var reminderField = new Form.Field.Checkbox(
-			"reminderInput",
-			"Reminder",
-			false
-		)
+		var defaultReminder = false
+		var reminderField = function (bool) {
+			return new Form.Field.Checkbox(
+				"reminderInput",
+				"Reminder",
+				bool
+			)
+		}
 		
-		if (columns.byTitle('Deadline') !== null && columns.byTitle('Deadline').type === Column.Type.Date) {
+		if (columns.byTitle('Deadline') && columns.byTitle('Deadline').type === Column.Type.Date) {
 			var defaultDeadline = true
 		} else {
 			var defaultDeadline = false
@@ -122,9 +128,9 @@ var _ = function(){
 		
 		// Authentication token field
 		var authColumn = columns.byTitle('Authentication Token')
-		if (authColumn !== null && authColumn.type === Column.Type.Text) {
+		if (authColumn && authColumn.type === Column.Type.Text) {
 			var textObj = rootItem.children[0].valueForColumn(authColumn)
-			if (textObj !== null && textObj.string !== '') {
+			if (textObj && textObj.string !== '') {
 				str = textObj.string
 				if (!/\W/.test(str)) {
 					var defaultAuth = str
@@ -132,7 +138,7 @@ var _ = function(){
 					var defaultAuth = ''
 				}
 			}
-		} else if (Pasteboard.general.string !== null && Pasteboard.general.string !== undefined) {
+		} else if (Pasteboard.general.hasStrings) {
 			var str = Pasteboard.general.string
 			if (!/\W/.test(str)) {
 				var defaultAuth = str
@@ -142,39 +148,76 @@ var _ = function(){
 		} else {
 			var defaultAuth = ''
 		}
-		var authField = new Form.Field.String(
-			"authInput",
-			"Authentication Token",
-			defaultAuth
-		)
+		
+		var authField = function (str) {
+			return new Form.Field.String(
+				"authInput",
+				"Authentication Token",
+				str
+			)
+		}
 		
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(titleField)
 		inputForm.addField(notesField)
-		inputForm.addField(checklistField)
+		inputForm.addField(checklistField(defaultChecklist))
+		
 		inputForm.addField(whenField)
-		inputForm.addField(reminderField)
 		inputForm.addField(deadlineField)
 		inputForm.addField(tagsField)
+		
 		inputForm.addField(projectField)
 		inputForm.addField(linkBackField)
+		
 		inputForm.addField(updateField)
-		inputForm.addField(authField)
+		inputForm.addField(authField(defaultAuth))
 		
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Add to Things:"
+		formPrompt = "Add to Things"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
 		inputForm.validate = function(formObject){
-			if (formObject.values["checklistInput"] && formObject.values["projectInput"]) {
-				throw new Error('Project cannot have checklist.')
-				return false
-			} else if (formObject.values["authInput"] === '' && formObject.values["updateInput"] === true) {
-				throw new Error('Authentication token is required for update operation.')
+			var keys = formObject.fields.map(field => field.key)
+			
+			if (formObject.values['projectInput'] === true) {
+				if (keys.indexOf('checklistInput') !== -1) {
+					defaultChecklist = formObject.values['checklistInput']
+					formObject.removeField(formObject.fields[keys.indexOf('checklistInput')])
+				}
 			} else {
-				return null
+				if (keys.indexOf('checklistInput') === -1) {
+					formObject.addField(checklistField(defaultChecklist), keys.indexOf('notesInput') + 1)
+				}
 			}
+			
+			if (formObject.values['updateInput'] === false) {
+				if (keys.indexOf('authInput') !== -1) {
+					defaultAuth = formObject.values['authInput']
+					formObject.removeField(formObject.fields[keys.indexOf('authInput')])
+				}
+			} else {
+				if (keys.indexOf('authInput') === -1) {
+					formObject.addField(authField(defaultAuth), keys.indexOf('updateInput') + 1)
+				}
+			}
+			
+			if (formObject.values['whenInput'] === true) {
+				if (keys.indexOf('reminderInput') === -1) {
+					formObject.addField(reminderField(defaultReminder), keys.indexOf('whenInput') + 1)
+				}
+			} else {
+				if (keys.indexOf('reminderInput') !== -1) {
+					defaultReminder = formObject.values['reminderInput']
+					formObject.removeField(formObject.fields[keys.indexOf('reminderInput')])
+				}
+			}
+			
+			if (formObject.values["authInput"] === '' && formObject.values["updateInput"] === true) {
+				throw new Error('Authentication token is required for update operation.')
+			}
+			return null
+			
 		}
 		
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
@@ -199,52 +242,93 @@ var _ = function(){
 			console.log('Adding columns')
 			// Create new columns if missing
 			if (includesWhen) {
-				if (columns.byTitle('When') === null || columns.byTitle('When').type !== Column.Type.Date) {
-					document.outline.addColumn(Column.Type.Date, editor.afterColumn(), 
-						function (column) {
-							column.title = 'When'
-						}
-					)
+				if (!columns.byTitle('When')|| columns.byTitle('When').type !== Column.Type.Date) {
 					includesWhen = false
 					includesReminder = false
+					var alertTitle = "Confirmation"
+					var alertMessage = "Missing date column: When.\nAdd column?"
+					var alert = new Alert(alertTitle, alertMessage)
+					alert.addOption("Skip")
+					alert.addOption("Add")
+					var alertPromise = alert.show()
+					
+					alertPromise.then(buttonIndex => {
+						if (buttonIndex === 1){
+							console.log("Continue script")
+							document.outline.addColumn(Column.Type.Date, editor.afterColumn(), 
+								function (column) {
+									column.title = 'When'
+								}
+							)
+						}
+					})
+					
 				}
 			}
 			
 			if (includesDeadline) {
-				if (columns.byTitle('Deadline') === null || columns.byTitle('Deadline').type !== Column.Type.Date) {
-					document.outline.addColumn(Column.Type.Date, editor.afterColumn(), 
-						function (column) {
-							column.title = 'Deadline'
-						}
-					)
+				if (!columns.byTitle('Deadline') || columns.byTitle('Deadline').type !== Column.Type.Date) {
+					
 					includesDeadline = false
+					var alertTitle = "Confirmation"
+					var alertMessage = "Missing date column: Deadline.\nAdd column?"
+					var alert = new Alert(alertTitle, alertMessage)
+					alert.addOption("Skip")
+					alert.addOption("Add")
+					var alertPromise = alert.show()
+					
+					alertPromise.then(buttonIndex => {
+						if (buttonIndex === 1){
+							console.log("Continue script")
+							document.outline.addColumn(Column.Type.Date, editor.afterColumn(), 
+								function (column) {
+									column.title = 'Deadline'
+								}
+							)
+						}
+					})
 				}
 			}
 			
 			if (includesTags) {
 				if (!filteredColumnTitles.includes('Tags')) {
-					document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
-						function (column) {
-							column.title = 'Tags'
-						}
-					)
+							
 					includesTags = false
+					var alertTitle = "Confirmation"
+					var alertMessage = "Missing text column: Tags.\nAdd column?"
+					var alert = new Alert(alertTitle, alertMessage)
+					alert.addOption("Skip")
+					alert.addOption("Add")
+					var alertPromise = alert.show()
+					
+					alertPromise.then(buttonIndex => {
+						if (buttonIndex === 1){
+							console.log("Continue script")
+							document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
+								function (column) {
+									column.title = 'Tags'
+								}
+							)
+						}
+					})
 				}
 			}
 			
 			if (linkBack) {
-				if (!filteredColumnTitles.includes('Things URL')) {
+				if (!columns.byTitle('Things URL') || columns.byTitle('Things URL').type !== Column.Type.Text) {
+					updateExisting = false
 					document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
 						function (column) {
 							column.title = 'Things URL'
 						}
 					)
-					updateExisting = false
+					
 				}
 			}
 			
-			console.log('Creating Things objects')
+			
 			// Creating an array of objects to later convert to JSON, from each selected items.
+			console.log('Creating Things objects')
 			var things = []
 			var items = selection.items
 			
@@ -265,12 +349,12 @@ var _ = function(){
 				if (asProject) {thing.type = 'project'} else {thing.type = 'to-do'}
 				// console.log('Things object : ', JSON.stringify(thing))
 				var urlColumn = columnByTitle(filteredColumns, 'Things URL')
-				if (item.valueForColumn(urlColumn) !== null && item.valueForColumn(urlColumn).string.trim().length !== 0) {
+				if (urlColumn && item.valueForColumn(urlColumn) && item.valueForColumn(urlColumn).string.trim().length !== 0) {
 					thing.id = reverse(reverse(item.valueForColumn(urlColumn).string.trim()).match(/^\w*(?==di\?wohs\/\/\/:sgniht$)/)[0])
 				}
 				// console.log('Things object : ', JSON.stringify(thing))
 				if (updateExisting) {
-					if (thing.id !== undefined && thing.id !== null && thing.id !== '') {
+					if (thing.id) {
 						thing.operation = 'update'
 					} else {
 						thing.operation = 'create'
@@ -330,7 +414,7 @@ var _ = function(){
 				if (includesWhen) {
 					var whenColumn = columnByTitle(dateColumns, 'When')
 					var when = item.valueForColumn(whenColumn)
-					if (when !== null) {
+					if (when) {
 						if (includesReminder) {
 							attributes.when = when.toString()
 						} else {
@@ -346,7 +430,7 @@ var _ = function(){
 				if (includesDeadline) {
 					var deadlineColumn = columnByTitle(dateColumns, 'Deadline')
 					var deadline = item.valueForColumn(deadlineColumn)
-					if (deadline !== null) {
+					if (deadline) {
 						attributes.deadline = deadline.toDateString()
 					} else {
 						attributes.deadline = ''
@@ -359,7 +443,7 @@ var _ = function(){
 				if (includesTags) {
 					var tagsColumn = columnByTitle(filteredColumns, 'Tags')
 					var tags = item.valueForColumn(tagsColumn)
-					if (tags !== null && tags.string.trim().length !== 0) {
+					if (tags && tags.string.trim().length !== 0) {
 						var tagsArray = tags.string.trim().split(',')
 						tagsArray = tagsArray.map(tag => tag.trim()) // Trim tags
 						attributes.tags = tagsArray
@@ -396,9 +480,14 @@ var _ = function(){
 					var items = document.editors[0].selection.items
 					items.forEach((item, index) => {
 						var str = 'things:///show?id=' + result[index]
-						var thingsColumn = columns.byTitle('Things URL')
+						
+						var textColumns = columns.filter(function(column){
+							if (column.type === Column.Type.Text){return column}
+						})
+						
+						var thingsColumn = columnByTitle(textColumns, 'Things URL')
 						var textObj = item.valueForColumn(thingsColumn)
-						if (textObj !== null) {
+						if (textObj) {
 							textObj = new Text(str, textObj.style)
 							item.setValueForColumn(textObj, thingsColumn)
 						} else {

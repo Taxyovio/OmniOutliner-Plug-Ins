@@ -4,6 +4,36 @@ var _ = function(){
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
+		
+		const editor = document.editors[0]
+		
+		// This is the delay between each url call, constrained by the app switching animation on iOS. 
+		// If it's set to too low, there could be data loss on transport.
+		// Set default delay to 1 sec on iOS devices unless there's only one selected item
+		if (app.platformName === 'iOS' || app.platformName === 'iPadOS') {
+			if (selection.items.length === 1) {
+				var delay = 0
+			} else {
+				var delay = 1
+			}
+		} else {
+			var delay = 0
+		}
+		console.log('Default delay is set to', delay, 'seconds.')
+		
+		// Create DEVONthink URL column
+		if (!columns.byTitle('DEVONthink URL') || columns.byTitle('DEVONthink URL').type !== Column.Type.Text) {
+			document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
+				function (column) {
+					column.title = 'DEVONthink URL'
+				}
+			)
+			
+		}
+		
+		
+		// Creating urls
+		var urls = []
 		selection.items.forEach(function(item){
 			try {title = document.name} catch(err){title = ''}
 			try {text = item.topic} catch(err){text = ''}
@@ -13,22 +43,98 @@ var _ = function(){
 			title = encodeURIComponent(title)
 			if(text != ''){
 				text = encodeURIComponent(text)
-				urlStr = "x-devonthink://createtext?title=" + title + "&text=" + text + "&location=" + itemLink
+				urlStr = "x-devonthink://x-callback-url/createtext?title=" + title + "&text=" + text + "&location=" + itemLink
 				if (comment != ''){
 					comment = encodeURIComponent(comment)
-					urlStr = urlStr + "&comment=" + comment
+					urlStr += "&comment=" + comment
 				}
-				url = URL.fromString(urlStr).call(function(result){})
+				urls.push(URL.fromString(urlStr))
 			}
 		})
+		
+		// Call the urls
+		// Warn against flagging on multitasking as true
+		if (selection.items.length > 1) {
+			var alertTitle = "Confirmation"
+			var alertMessage = 'The process can be accerelated if DEVONthink and OmniOutliner are on the same screen.\nContinue with multitasking?'
+			var alert = new Alert(alertTitle, alertMessage)
+			alert.addOption("No")
+			alert.addOption("Continue")
+			var alertPromise = alert.show()
+			
+			alertPromise.then(buttonIndex => {
+				if (buttonIndex === 1){
+					console.log("Continue without delay")
+					repeatingCall(urls, 0)
+				} else {
+					console.log("Continue with delay")
+					repeatingCall(urls, delay)
+				}
+			})
+		
+		} else {
+			console.log("Continue without delay")
+			repeatingCall(urls, 0)
+		}
+			
+		
 	});
 
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length === 1){return true} else {return false}
+		if(selection.items.length > 0){return true} else {return false}
 	};
 	
 	return action;
 }();
 _;
+
+// Minimal delay 0.8 for mutiple tasks if app switching is needed.
+function repeatingCall(urls, delay) {
+	console.log('Calling URLs: ', urls)
+	var counter = 0
+	var repeats = urls.length
+	
+	// In the Timer, all user defined objects get invalidated. 
+	// Usable objects: document, columns, rootItem, outlineColumn, noteColumn, statusColumn
+	Timer.repeating(delay, function(timer){
+		if (counter === repeats){
+			console.log('done')
+			timer.cancel()
+			return 'Complete'
+		} else {
+			console.log('counter: ', counter)
+			counter = counter + 1
+			urls[counter - 1].call(function(result){
+				console.log('result', JSON.stringify(result))
+				var str = result.itemlink
+				var item = document.editors[0].selection.items[counter - 1]
+				
+				var textColumns = columns.filter(function(column){
+					if (column.type === Column.Type.Text){return column}
+				})
+				
+				var urlColumn = columnByTitle(textColumns, 'DEVONthink URL')
+				
+				var textObj = item.valueForColumn(urlColumn)
+				if (textObj) {
+					textObj = new Text(str, textObj.style)
+					item.setValueForColumn(textObj, urlColumn)
+				} else {
+					textObj = new Text(str, item.style)
+					item.setValueForColumn(textObj, urlColumn)
+				}
+					
+			})
+		}
+	})
+}
+
+function columnByTitle(columnArray, title) {
+	for (var i = 0; i < columnArray.length; i++) {
+		if (columnArray[i].title === title) {
+			return columnArray[i]
+		}
+	}
+}

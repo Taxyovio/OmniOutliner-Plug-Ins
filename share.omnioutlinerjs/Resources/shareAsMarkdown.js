@@ -49,7 +49,7 @@ var _ = function() {
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(columnField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Select Column:"
+		formPrompt = "Select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -68,7 +68,7 @@ var _ = function() {
 				} else if (selectedColumn === document.outline.noteColumn) {
 					strings.push(item.note)
 				} else {
-					if (item.valueForColumn(selectedColumn) !== null) {
+					if (item.valueForColumn(selectedColumn)) {
 						strings.push(item.valueForColumn(selectedColumn).string)
 					}
 				}
@@ -83,7 +83,7 @@ var _ = function() {
 					} else if (selectedColumn === document.outline.noteColumn) {
 						strings.push('#'.repeat(level + 1) + " " + item.note)
 					} else {
-						if (item.valueForColumn(selectedColumn) !== null) {
+						if (item.valueForColumn(selectedColumn)) {
 							strings.push('#'.repeat(level + 1) + " " + item.valueForColumn(selectedColumn).string)
 						} else {
 							strings.push('#'.repeat(level + 1) + " " + '-'.repeat(level + 1) )
@@ -107,7 +107,7 @@ var _ = function() {
 							strings.push(item.note)
 						}
 					} else {
-						if (item.valueForColumn(selectedColumn) !== null) {
+						if (item.valueForColumn(selectedColumn)) {
 							if (/^#/.test(item.valueForColumn(selectedColumn).string)) {
 								strings.push('#'.repeat(level + 1) + " " + item.valueForColumn(selectedColumn).string.replace(/^#+/, ''))
 							} else {
@@ -139,7 +139,7 @@ var _ = function() {
 	
 	
 	action.validate = function(selection, sender){
-		if (selection.items.length !== 1) {
+		if (selection.items.length > 0) {
 			return true
 		} else {
 			return false

@@ -1,4 +1,4 @@
-"label" = "Share Item Link";
+"label" = "Share as Link";
 "shortLabel" = "Share Link";
-"mediumLabel" = "Share Links from Selected Items";
-"LongLabel" = "Share the item links from selected items";
+"mediumLabel" = "Share Link";
+"LongLabel" = "Share item links from selected items";

@@ -2,7 +2,8 @@
 	{"image":"icon.png","identifier":"addToAnki"},
 	{"image":"icon.png","identifier":"addToThings"},
 	{"image":"icon.png","identifier":"addToDEVONthink"},
-	{"image":"icon.png","identifier":"shareTopic"},
+	{"image":"icon.png","identifier":"shareColumn"},
+	{"image":"icon.png","identifier":"shareAttachment"},
 	{"image":"icon.png","identifier":"shareItemLink"},
 	{"image":"icon.png","identifier":"shareAsMarkdown"},
 ],"defaultLocale":"en"}

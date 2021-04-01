@@ -6,7 +6,7 @@ var _ = function(){
 		// selection options: columns, document, editor, items, nodes, styles
 		linksArray = []
 		selection.items.forEach(function(item){
-			itemLink = 'omnioutliner:///open?row=' + item.identifier
+			itemLink = 'omnioutliner:///open?row=' + item.identifier + '\n'
 			linksArray.push(itemLink)
 		})
 		sharePanel = new SharePanel(linksArray)		
