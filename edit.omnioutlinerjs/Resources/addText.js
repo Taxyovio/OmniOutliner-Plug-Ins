@@ -7,14 +7,10 @@
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		visibleTextColumns = columns.map(function(column){
+		filteredColumns = columns.filter(function(column){
 			if (editor.visibilityOfColumn(column)){
 				if (column.type === Column.Type.Text){return column}
 			}
-		})
-		
-		filteredColumns = visibleTextColumns.filter(el => {
-			return el !== null && el !== undefined;
 		})
 		
 		if (filteredColumns.length === 0) {
@@ -51,6 +47,20 @@
 			var defaultColumn = document.outline.noteColumn
 		}
 		
+		var colourField = new Form.Field.Checkbox(
+			"colourInput",
+			"Colour",
+			false
+		)
+		
+		var defaultRGB = '(1, 0, 0, 1)'
+		var rgbField = function (str) {
+			return new Form.Field.String(
+				"rgbInput",
+				"RGB",
+				str
+			)
+		}
 		var columnField = new Form.Field.Option(
 			"columnInput",
 			"Column",
@@ -71,14 +81,40 @@
 		inputForm.addField(textField)
 		inputForm.addField(columnField)
 		inputForm.addField(insertionPositionField)
+		inputForm.addField(colourField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Enter Text and select Column Position:"
+		formPrompt = "Enter Text and select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
 		inputForm.validate = function(formObject){
+			var keys = formObject.fields.map(field => field.key)
+			
 			var textValue = formObject.values["textInput"]
 			var textStatus = (textValue && textValue.length > 0) ? true:false
+			
+			if (keys.indexOf('rgbInput') === -1) {
+				if (formObject.values["colourInput"]) {
+					formObject.addField(rgbField(defaultRGB))
+				} 
+			} else {
+			
+				if (formObject.values["colourInput"]) {
+					var rgb = formObject.values["rgbInput"]
+					if (rgb.match(/\(\s*\d+\.{0,1}\d*\s*,\s*\d+\.{0,1}\d*\s*,\s*\d+\.{0,1}\d*\s*,\s*\d+\.{0,1}\d*\s*\)/) === null) {
+						return false
+					} else {
+						var arr = rgb.match(/\d+\.{0,1}\d*/g)
+						for (var i = 0; i < arr.length; i++) {
+							var float = parseFloat(arr[i])
+							if (float > 1) {return false}
+						}
+					}
+				} else {
+					defaultRGB = formObject.values["rgbInput"]
+					formObject.removeField(formObject.fields[keys.indexOf('rgbInput')])
+				}
+			}
 			return textStatus
 		}
 	
@@ -88,21 +124,44 @@
 			var selectedColumn = formObject.values["columnInput"]
 			var selectedPosition = formObject.values["insertionPositionInput"]
 			
+			var fillColour = formObject.values["colourInput"]
+			if (fillColour) {
+				var rgb = formObject.values["rgbInput"]
+				var floatArr = rgb.match(/\d+\.{0,1}\d*/g).map(str => parseFloat(str))
+				var colour = Color.RGB(floatArr[0], floatArr[1], floatArr[2], floatArr[3])
+			}
+			
 			selectedItems.forEach(function(item){
 				var targetText = item.valueForColumn(selectedColumn)
-				if (targetText !== null) {
+				if (targetText) {
 					var textInsert = new Text(insertStr, targetText.style)
+					if (fillColour) {textInsert.style.set(Style.Attribute.FontFillColor, colour)}
+					var space = new Text(' ', targetText.style)
 					if (selectedPosition === 'End') {
+						if (targetText.string !== '' && targetText.string.match(/\s+$/) === null) {
+							targetText.append(space)
+						}
+						
 						targetText.append(textInsert)
+						if (!/\s$/.test(insertStr)) {targetText.append(space)}
 					} else if (selectedPosition === 'Start') {
+						if (targetText.string !== '' && targetText.string.match(/^\s+/) === null) {
+							var space = new Text(' ', targetText.style)
+							targetText.insert(targetText.start, space)
+						}
 						targetText.insert(targetText.start, textInsert)
 					}
 				} else {
+					
+					var space = new Text(' ', item.style)
 					var textInsert = new Text(insertStr, item.style)
+					if (fillColour) {textInsert.style.set(Style.Attribute.FontFillColor, colour)}
+					if (!/\s$/.test(insertStr)) {textInsert.append(space)}
 					item.setValueForColumn(textInsert, selectedColumn)
 				}
 			})
 			
+			/*
 			// Work around a bug that crops images by forcing UI to update
 			var ogAlignment = selectedColumn.textAlignment
 			if (ogAlignment === TextAlignment.Natural) {
@@ -111,6 +170,7 @@
 				selectedColumn.textAlignment = TextAlignment.Natural
 			}
 			selectedColumn.textAlignment = ogAlignment
+			*/
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION

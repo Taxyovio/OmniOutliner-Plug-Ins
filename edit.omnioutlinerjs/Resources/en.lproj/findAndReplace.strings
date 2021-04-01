@@ -1,0 +1,4 @@
+"label" = "Find and Replace";
+"shortLabel" = "Find";
+"mediumLabel" = "Find and Replace";
+"longLabel" = "Find and replace texts with RegEx";

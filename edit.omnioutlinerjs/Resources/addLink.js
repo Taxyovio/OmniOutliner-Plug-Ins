@@ -7,14 +7,10 @@
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		visibleTextColumns = columns.map(function(column){
+		filteredColumns = columns.filter(function(column){
 			if (editor.visibilityOfColumn(column)){
 				if (column.type === Column.Type.Text){return column}
 			}
-		})
-		
-		filteredColumns = visibleTextColumns.filter(el => {
-			return el !== null && el !== undefined;
 		})
 		
 		if (filteredColumns.length === 0) {
@@ -84,22 +80,20 @@
 		inputForm.addField(insertionPositionField)
 		
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Enter Title and URL and select Column:"
+		formPrompt = "Enter URL and select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
 		inputForm.validate = function(formObject){
-			var textValue = formObject.values["textInput"]
-			var textStatus = (textValue && textValue.length > 0) ? true:false
 			var urlValue = formObject.values["urlInput"]
-			var urlStatus = (urlValue && urlValue.length > 0) ? true:false
-			return (textStatus && urlStatus)
+			var urlStatus = (urlValue && urlValue.length > 0 && urlValue.match(/:\/\//)) ? true:false
+			return urlStatus
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
 		formPromise.then(function(formObject){
-			var insertStr = formObject.values["textInput"]
-			var urlStr = formObject.values["urlInput"]
+			var insertStr = formObject.values["textInput"].trim()
+			var urlStr = formObject.values["urlInput"].trim()
 			var selectedColumn = formObject.values["columnInput"]
 			var selectedPosition = formObject.values["insertionPositionInput"]
 			var url = URL.fromString(urlStr)
@@ -107,21 +101,42 @@
 			selectedItems.forEach(function(item){
 			
 				var targetText = item.valueForColumn(selectedColumn)
-				if (targetText !== null) {
-					var textInsert = new Text(insertStr, targetText.style)
-					textInsert.style.set(Style.Attribute.Link, url)
+				if (targetText) {
+					if (insertStr === '') {
+						insertStr = urlStr
+						var textInsert = new Text(insertStr, targetText.style)
+					} else {
+						var textInsert = new Text(insertStr, targetText.style)
+						textInsert.style.set(Style.Attribute.Link, url)
+					}
+					var space = new Text(' ', targetText.style)
 					if (selectedPosition === 'End') {
+						if (targetText.string) {
+							targetText.append(space)
+						}
 						targetText.append(textInsert)
+						targetText.append(space)
 					} else if (selectedPosition === 'Start') {
+						if (targetText.string) {
+							targetText.insert(targetText.start, space)
+						}
 						targetText.insert(targetText.start, textInsert)
 					}
 				} else {
-					var textInsert = new Text(insertStr, item.style)
-					textInsert.style.set(Style.Attribute.Link, url)
+					if (insertStr === '') {
+						insertStr = urlStr
+						var textInsert = new Text(insertStr, item.style)
+					} else {
+						var textInsert = new Text(insertStr, item.style)
+						textInsert.style.set(Style.Attribute.Link, url)
+					}
+					var space = new Text(' ', item.style)
+					textInsert.append(space)
 					item.setValueForColumn(textInsert, selectedColumn)
 				}
 			})
 			
+			/*
 			// Work around a bug that crops images by forcing UI to update
 			var ogAlignment = selectedColumn.textAlignment
 			if (ogAlignment === TextAlignment.Natural) {
@@ -130,6 +145,7 @@
 				selectedColumn.textAlignment = TextAlignment.Natural
 			}
 			selectedColumn.textAlignment = ogAlignment
+			*/
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION

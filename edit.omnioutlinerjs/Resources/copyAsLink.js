@@ -5,11 +5,13 @@ var _ = function(){
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
 		linksArray = []
-		selection.items.forEach(function(item){
+		selection.items.forEach(function(item, index){
 			itemLink = 'omnioutliner:///open?row=' + item.identifier
-			linksArray.push(URL.fromString(itemLink))
+			if (index < selection.items.length - 1)
+			itemLink += '\n'
+			linksArray.push(itemLink)
 		})
-		Pasteboard.general.URLs = linksArray
+		Pasteboard.general.strings = linksArray
 	});
 
 	action.validate = function(selection, sender) {

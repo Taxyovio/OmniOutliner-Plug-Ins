@@ -3,6 +3,9 @@
 	var action = new PlugIn.Action(function(selection, sender){
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
+		
+		const sizeLimit = 250000000 // The app tends to crahs on iOS/iPadOS with files bigger than 250MB
+		
 		var selectedItem = selection.items[0]
 		
 		// List all visible text columns for insertion
@@ -47,7 +50,7 @@
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(columnField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Select Column:"
+		formPrompt = "Select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -74,16 +77,61 @@
 					// REMOVE FILE EXTENSION AND ENCODING
 					var baseName = filename.substring(0,filename.lastIndexOf('.'))
 					baseName = decodeURIComponent(baseName)
+					var extension = filename.substring(filename.lastIndexOf('.') + 1, filename.length)
+							
+					// If there's no extension in the filename, the above codes assign the whole name to extension.
+					if (baseName === '') {
+						baseName = extension
+						extension = ''
+					}
+					if (extension === '') {
+						filename = baseName
+					} else {
+						filename = baseName + '.' + extension
+					}
 					// IMPORT FILES
 					url.fetch(function(data){
-						wrapper = FileWrapper.withContents(filename,data)
-						ogText = selectedItem.valueForColumn(selectedColumn)
-						if (ogText !== null) {
-							textObj = Text.makeFileAttachment(wrapper, ogText.style)
-							ogText.append(textObj)
+						var size = data.length
+						console.log(filename, size, 'bytes')
+						if (size > sizeLimit && (app.platformName === 'iOS' || app.platformName === 'iPadOS')) {
+							const displayNameLimit = 21
+							if (filename.length > displayNameLimit) {
+								var displayName = baseName.substring(0, baseName.length - (filename.length - displayNameLimit)) + '....' + extension
+							} else {
+								var displayName = filename
+							}
+							var alertTitle = "Confirmation"
+							var alertMessage = displayName + "\nA file larger than 250MB might cause crash.\nContinue to add?"
+							var alert = new Alert(alertTitle, alertMessage)
+							alert.addOption("Skip")
+							alert.addOption("Continue")
+							var alertPromise = alert.show()
+							
+							alertPromise.then(buttonIndex => {
+								if (buttonIndex === 1){
+									console.log("Continue script")
+									var wrapper = FileWrapper.withContents(filename,data)
+									var ogText = selectedItem.valueForColumn(selectedColumn)
+									if (ogText !== null) {
+										textObj = Text.makeFileAttachment(wrapper, ogText.style)
+										ogText.append(textObj)
+									} else {
+										textObj = Text.makeFileAttachment(wrapper, selectedItem.style)
+										selectedItem.setValueForColumn(textObj, selectedColumn)
+									}
+								}
+							})
+							
 						} else {
-							textObj = Text.makeFileAttachment(wrapper, selectedItem.style)
-							selectedItem.setValueForColumn(textObj, selectedColumn)
+							var wrapper = FileWrapper.withContents(filename,data)
+							var ogText = selectedItem.valueForColumn(selectedColumn)
+							if (ogText !== null) {
+								textObj = Text.makeFileAttachment(wrapper, ogText.style)
+								ogText.append(textObj)
+							} else {
+								textObj = Text.makeFileAttachment(wrapper, selectedItem.style)
+								selectedItem.setValueForColumn(textObj, selectedColumn)
+							}
 						}
 					})
 				})
@@ -92,7 +140,9 @@
 			// PROMISE FUNCTION CALLED UPON PICKER CANCELLATION
 			pickerPromise.catch(function(error){
 				console.log("form cancelled", error.message)
-			})		
+			})
+			
+			/*
 			// Work around a bug that crops images by forcing UI to update
 			var ogAlignment = selectedColumn.textAlignment
 			if (ogAlignment === TextAlignment.Natural) {
@@ -101,6 +151,7 @@
 				selectedColumn.textAlignment = TextAlignment.Natural
 			}
 			selectedColumn.textAlignment = ogAlignment
+			*/
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
@@ -111,7 +162,7 @@
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.nodes.length === 1){return true} else {return false}
+		if(selection.nodes.length === 1) {return true} else {return false}
 	};
 	
 	return action;
