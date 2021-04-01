@@ -48,7 +48,7 @@ var _ = function(){
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(columnField)
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Select Column:"
+		formPrompt = "Select Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -62,7 +62,7 @@ var _ = function(){
 			
 			selection.items.forEach(function(item){
 				var textObj = item.valueForColumn(selectedColumn)
-				if (textObj !== null) {
+				if (textObj) {
 					wordcount = wordcount + textObj.words.length
 				}
 			})
