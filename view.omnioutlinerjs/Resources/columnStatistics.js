@@ -92,6 +92,7 @@ var _ = function(){
 			
 			
 			var message = 'Size\n' + decimalToFloat(size) + '\n\n'
+			message += 'Sum\n' + decimalToFloat(sum) + '\n\n'
 			message += 'Mean\n' + decimalToFloat(mean) + '\n\n'
 			message += 'Standard Deviation\n' + decimalToFloat(standardDeviation) + '\n\n'
 			message += 'Maximum\n' + decimalToFloat(max) + '\n\n'
