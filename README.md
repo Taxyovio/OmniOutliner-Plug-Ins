@@ -42,7 +42,7 @@ This action inserts a hyperlink from the input text and URL, into a selected col
 ####  Add Attachment
 This action inserts attachments into a selected column of the selected row, picked from `Files.app`.
 ####  Rename Attachment
-This action renames all attachments in the selected rows, allowing automatic renaming based on column texts, e.g. `{%Topic}-[{%Notes}]-({%Status})`. It allows renaming all at once or manually review and confirm each attachment.
+This action renames all attachments in the selected rows, allowing automatic renaming based on column texts, e.g. `{%Topic}-[{%Notes}]-({%Status})`. It allows renaming all at once or manually review and confirm for each attachment.
 ####  Duplicate Column
 This action duplicates a selected column and its contents to a new column to the right.
 ###  Format
@@ -70,12 +70,12 @@ This action shows the count of words in a selected text column of the selected r
 ####  Character Count
 This action shows the count of characters in a selected text column of the selected rows.
 ####  Column Statistics
-This action shows the basic statistics of a selected number or duration column of the selected rows, including sample size, mean, standard deviation, maximum, minimum, and median.
+This action shows the basic statistics of a selected number or duration column of the selected rows, including sample size, sum, mean, standard deviation, maximum, minimum, and median.
 ###  Share
 ####  Add to Anki
 This action sends the selected rows into creating new notes in Anki Mobile. It requires appropriate configuration for card types in Anki, with 3 custom card types defined with custom fields: {Basic: Front, Back, Reference, Reverse, Extra}, {Cloze: Text, Reference, Extra}, {Input: Front, Back, Reference, Extra}. It also requires corresponding columns being present in the current document. Otherwise it prompts to create a template document.
 ####  Add to Things
-This action sends sends the selected rows into creating/updating tasks/projects in Things. It includes the OmniOutliner row link in the notes, and has the option to send the Things URL back. Which column are sent to task/project title and notes can be selected. There are toggle options to include checklist, when, reminder, deadline, and tags.
+This action sends the selected rows into creating/updating tasks/projects in Things. It includes the OmniOutliner row link in the notes, and has the option to send the Things URL back. Which column are sent to task/project title and notes can be changed. There are toggle options to include checklist, when, reminder, deadline, and tags.
 ####  Add to DEVONthink
 This action sends the selected rows into creating new text documents in DEVONthink. It sends the document title as title, topic as body, notes as notes, and row link as URL.
 ####  Share Column
