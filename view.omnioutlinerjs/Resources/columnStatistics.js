@@ -60,8 +60,9 @@ var _ = function(){
 				return value
 			})
 			
-			values.sort()
+			values.sort(function(a, b) {return a.compare(b)})
 			
+			console.log('sorted values: ', values.map(dec => dec.toString()))
 			var sum = Decimal.zero
 			var size = Decimal.zero
 			

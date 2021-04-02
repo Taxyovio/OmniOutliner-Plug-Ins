@@ -264,7 +264,6 @@
 				formatterForm.validate = function(formObject){
 					if (isNaN(parseFloat(formObject.values["dayInput"])) || isNaN(parseFloat(formObject.values["weekInput"]))) {
 						throw new Error('Please enter numbers.')
-						return false
 					} else {
 						return null
 					}
@@ -341,10 +340,8 @@
 				// VALIDATE THE USER INPUT
 				formatterForm.validate = function(formObject){
 					if (formObject.values["currencyInput"] !== 'None' && formObject.values["formatterInput"] !== 'None') {
-						return false
 						throw new Error('Formatter and currency options are exclusive.')
 					} else if (formObject.values["currencyInput"] === 'None' && formObject.values["formatterInput"] === 'None') {
-						return false
 						throw new Error('Please choose an option.')
 					}
 					return null
