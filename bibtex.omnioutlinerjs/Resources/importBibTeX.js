@@ -66,19 +66,19 @@ var _ = function(){
 }();
 _;
 
-// This function takes a string bibStr containing bibtex and add each entry to a new row, using the bibtex2JSON Parser.
+// This function takes a string bibStr containing bibtex and add each entry to a new row, using the bib2JSON Parser.
 function importBibTeX(bibStr, Parser) {
 	
 	// List all text columns
 	const editor = document.editors[0]
-	var filteredColumns = columns.filter(function(column){
-		if (column.type === Column.Type.Text){return column}
+	var filteredColumns = columns.filter(function(column) {
+		if (column.type === Column.Type.Text) {return column}
 	})
 	
-	var filteredColumnTitles = filteredColumns.map(function(column){
-		if (column.title !== ''){
+	var filteredColumnTitles = filteredColumns.map(function(column) {
+		if (column.title !== '') {
 			return column.title
-		} else if (column === document.outline.noteColumn){
+		} else if (column === document.outline.noteColumn) {
 		// The note column has empty title for unknown reason
 			return 'Notes'
 		}
@@ -87,7 +87,7 @@ function importBibTeX(bibStr, Parser) {
 	var bibJSON = Parser.BibtexParser(bibStr) 
 	// {"entries":[{"ObjectType":"entry","EntryType":"book","EntryKey":"book1","Fields":{"author":"Donald Knuth","title":"Concrete Mathematics"}}],"errors":[]}
 	var entries = bibJSON.entries
-	console.log('Parsed JSON with ', entries.length, ' entries:\n', JSON.stringify(bibJSON)) 
+	console.log('Parsed JSON with', entries.length, 'entries:\n', JSON.stringify(bibJSON), '\nerrors:\n', bibJSON.errors)
 	var columnTitles = filteredColumnTitles //['EntryType', 'EntryKey', 'title']
 	
 	
@@ -131,7 +131,7 @@ function importBibTeX(bibStr, Parser) {
 			}
 		})
 	})
-	console.log('Columns: ', columnTitles)
+	console.log('columns:', columnTitles)
 	
 	// Add entries into rows
 	entries.forEach(entry => {
@@ -148,8 +148,18 @@ function importBibTeX(bibStr, Parser) {
 				item.setValueForColumn(entry.EntryType, outline.columns.byTitle('EntryType'))
 				item.setValueForColumn(entry.EntryKey, outline.columns.byTitle('EntryKey'))
 				Object.getOwnPropertyNames(fields).forEach(fieldName => {
-					var fieldValue = fields[fieldName]
-					item.setValueForColumn(fieldValue, outline.columns.byTitle(fieldName.toLowerCase()))
+					if (fields[fieldName] && fields[fieldName].trim()) {
+						var fieldValue = fields[fieldName].trim()
+						var textObj = new Text(fieldValue, item.style)
+						if (fieldName.toLowerCase() === 'doi') {
+							var url = URL.fromString('https://doi.org/' + fieldValue)
+							textObj.style.set(Style.Attribute.Link, url)
+						}
+						var textColumns = columns.filter(function(column) {
+							if (column.type === Column.Type.Text) {return column}
+						})
+						item.setValueForColumn(textObj, columnByTitle(textColumns, fieldName.toLowerCase()))
+					}
 				})
 			}
 		)
@@ -184,5 +194,13 @@ function isEssentialField(filedName) {
 		return true
 	} else {
 		return false
+	}
+}
+
+function columnByTitle(columnArray, title) {
+	for (var i = 0; i < columnArray.length; i++) {
+		if (columnArray[i].title === title) {
+			return columnArray[i]
+		}
 	}
 }
