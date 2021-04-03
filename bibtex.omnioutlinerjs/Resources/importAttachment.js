@@ -179,7 +179,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 		if (importUnmatched) {
 			if (importURL) {
 				// Add new row at the bottom
-				var textObj = new Text(urlStr, document.outline.baseStyle)
+				var textObj = new Text(urlScheme(urlStr), document.outline.baseStyle)
 				rootItem.addChild(null, function(item) {
 					item.setValueForColumn(textObj, selectedColumn)
 				})
@@ -244,7 +244,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 				if (importUnmatched) {
 					if (importURL) {
 						// Add new row at the bottom
-						var textObj = new Text(urlStr, document.outline.baseStyle)
+						var textObj = new Text(urlScheme(urlStr), document.outline.baseStyle)
 						rootItem.addChild(null, function(item) {
 							item.setValueForColumn(textObj, selectedColumn)
 						})
@@ -345,7 +345,9 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 						var ogText = matchedItem.valueForColumn(selectedColumn)
 						if (importURL) {
 							if (ogText) {
-								var textObj = new Text('\n\n' + urlScheme(urlStr), ogText.style)
+								var textObj = new Text(urlScheme(urlStr), ogText.style)
+								var space = new Text(' ', ogText.style)
+								ogText.append(space)
 								ogText.append(textObj)
 							} else {
 								var textObj = new Text(urlStr, matchedItem.style)
@@ -415,7 +417,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 		if (importUnmatched) {
 			if (importURL) {
 				// Add new row at the bottom
-				var textObj = new Text(urlStr, document.outline.baseStyle)
+				var textObj = new Text(urlScheme(urlStr), document.outline.baseStyle)
 				rootItem.addChild(null, function(item) {
 					item.setValueForColumn(textObj, selectedColumn)
 				})
@@ -474,7 +476,8 @@ function urlScheme(urlStr) {
 		var matchedStr = urlStr.match(regex)[0]
 		var str = matchedStr.substring(uuidGoodReader.length + '/Documents/'.length, matchedStr.length)
 		str = '0/' + decodeURIComponent(str)
-		return 'gropen://' + escape(str) + '?cc=1'
+		console.log('GoodReader URL scheme', urlStr, '->\n', str)
+		return 'gropen://' + encodeURIComponent(str) + '?cc=1'
 	}
 
 	return urlStr

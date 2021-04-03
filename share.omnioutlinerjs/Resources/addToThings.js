@@ -1,4 +1,4 @@
-// This action creates/updates new tasks/projects into the Things app from the selected rows. Optionally a link to the created/updated item is passed back and added to a column 'Things URL'. For updating items, the authentication token needs to be provided either in the input form or from the first row in a column 'Authentication Token'.
+// This action creates/updates new tasks/projects into the Things app from the selected rows. Optionally a link to the created/updated item is passed back and added to a column 'Things ID'. For updating items, the authentication token needs to be provided either in the input form or from the first row in a column 'Authentication Token'.
 var _ = function(){
 	
 	var action = new PlugIn.Action(function(selection, sender) {
@@ -65,7 +65,7 @@ var _ = function(){
 		
 		var linkBackField = new Form.Field.Checkbox(
 			"linkBackInput",
-			"Add Things URL",
+			"Retrieve Things ID",
 			true
 		)
 		
@@ -292,7 +292,7 @@ var _ = function(){
 			
 			if (includesTags) {
 				if (!filteredColumnTitles.includes('Tags')) {
-							
+					
 					includesTags = false
 					var alertTitle = "Confirmation"
 					var alertMessage = "Missing text column: Tags.\nAdd column?"
@@ -315,11 +315,11 @@ var _ = function(){
 			}
 			
 			if (linkBack) {
-				if (!columns.byTitle('Things URL') || columns.byTitle('Things URL').type !== Column.Type.Text) {
+				if (!columns.byTitle('Things ID') || columns.byTitle('Things ID').type !== Column.Type.Text) {
 					updateExisting = false
 					document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
 						function (column) {
-							column.title = 'Things URL'
+							column.title = 'Things ID'
 						}
 					)
 					
@@ -348,7 +348,7 @@ var _ = function(){
 				var thing = {}
 				if (asProject) {thing.type = 'project'} else {thing.type = 'to-do'}
 				// console.log('Things object : ', JSON.stringify(thing))
-				var urlColumn = columnByTitle(filteredColumns, 'Things URL')
+				var urlColumn = columnByTitle(filteredColumns, 'Things ID')
 				if (urlColumn && item.valueForColumn(urlColumn) && item.valueForColumn(urlColumn).string.trim().length !== 0) {
 					thing.id = reverse(reverse(item.valueForColumn(urlColumn).string.trim()).match(/^\w*(?==di\?wohs\/\/\/:sgniht$)/)[0])
 				}
@@ -479,19 +479,21 @@ var _ = function(){
 				if (linkBack) {
 					var items = document.editors[0].selection.items
 					items.forEach((item, index) => {
-						var str = 'things:///show?id=' + result[index]
-						
-						var textColumns = columns.filter(function(column){
-							if (column.type === Column.Type.Text){return column}
+						var str = result[index]
+						var url = URL.fromString('things:///show?id=' + str)
+						var textColumns = columns.filter(function(column) {
+							if (column.type === Column.Type.Text) {return column}
 						})
 						
-						var thingsColumn = columnByTitle(textColumns, 'Things URL')
+						var thingsColumn = columnByTitle(textColumns, 'Things ID')
 						var textObj = item.valueForColumn(thingsColumn)
 						if (textObj) {
 							textObj = new Text(str, textObj.style)
+							textObj.style.set(Style.Attribute.Link, url)
 							item.setValueForColumn(textObj, thingsColumn)
 						} else {
 							textObj = new Text(str, item.style)
+							textObj.style.set(Style.Attribute.Link, url)
 							item.setValueForColumn(textObj, thingsColumn)
 						}
 					})
@@ -510,7 +512,7 @@ var _ = function(){
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0){return true} else {return false}
+		if(selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;

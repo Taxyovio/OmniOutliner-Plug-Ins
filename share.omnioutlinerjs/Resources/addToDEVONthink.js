@@ -21,11 +21,11 @@ var _ = function(){
 		}
 		console.log('Default delay is set to', delay, 'seconds.')
 		
-		// Create DEVONthink URL column
-		if (!columns.byTitle('DEVONthink URL') || columns.byTitle('DEVONthink URL').type !== Column.Type.Text) {
+		// Create DEVONthink ID column
+		if (!columns.byTitle('DEVONthink ID') || columns.byTitle('DEVONthink ID').type !== Column.Type.Text) {
 			document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
 				function (column) {
-					column.title = 'DEVONthink URL'
+					column.title = 'DEVONthink ID'
 				}
 			)
 			
@@ -108,21 +108,25 @@ function repeatingCall(urls, delay) {
 			counter = counter + 1
 			urls[counter - 1].call(function(result){
 				console.log('result', JSON.stringify(result))
-				var str = result.itemlink
+				var urlStr = result.itemlink
+				var str = urlStr.replace(/x-devonthink-item:\/\//, '')
+				var url = URL.fromString(urlStr)
 				var item = document.editors[0].selection.items[counter - 1]
 				
 				var textColumns = columns.filter(function(column){
 					if (column.type === Column.Type.Text){return column}
 				})
 				
-				var urlColumn = columnByTitle(textColumns, 'DEVONthink URL')
+				var urlColumn = columnByTitle(textColumns, 'DEVONthink ID')
 				
 				var textObj = item.valueForColumn(urlColumn)
 				if (textObj) {
 					textObj = new Text(str, textObj.style)
+					textObj.style.set(Style.Attribute.Link, url)
 					item.setValueForColumn(textObj, urlColumn)
 				} else {
 					textObj = new Text(str, item.style)
+					textObj.style.set(Style.Attribute.Link, url)
 					item.setValueForColumn(textObj, urlColumn)
 				}
 					
