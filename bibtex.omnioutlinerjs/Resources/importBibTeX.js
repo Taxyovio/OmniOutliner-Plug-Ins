@@ -164,6 +164,36 @@ function importBibTeX(bibStr, Parser) {
 			}
 		)
 	})
+	var alertTitle = "Confirmation"
+	if (entries.length === 0) {
+		if (bibJSON.errors.length === 0) {
+			var alertMessage = 'No bibtex entry has been imported, with no error.'
+		} else if (bibJSON.errors.length === 1) {
+			var alertMessage = 'No bibtex entry has been imported, with 1 error.'
+		} else {
+			var alertMessage = 'No bibtex entry has been imported, with ' + bibJSON.errors.length + ' errors.'
+		}
+	} else if (entries.length === 1) {
+		if (bibJSON.errors.length === 0) {
+			var alertMessage = '1 bibtex entry has been imported, with no error.'
+		} else if (bibJSON.errors.length === 1) {
+			var alertMessage = '1 bibtex entry has been imported, with 1 error.'
+		} else {
+			var alertMessage = '1 bibtex entry has been imported, with ' + bibJSON.errors.length + ' errors.'
+		}
+	} else {
+		if (bibJSON.errors.length === 0) {
+			var alertMessage = entries.length + ' bibtex entries have been imported, with no error.'
+		} else if (bibJSON.errors.length === 1) {
+			var alertMessage = entries.length + ' bibtex entries have been imported, with 1 error.'
+		} else {
+			var alertMessage = entries.length + ' bibtex entries have been imported, with ' + bibJSON.errors.length + ' errors.'
+		}
+	}
+	
+	var alert = new Alert(alertTitle, alertMessage)
+	alert.show()
+	return bibJSON
 }
 
 function reverse(str) {
