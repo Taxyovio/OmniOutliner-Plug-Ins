@@ -124,11 +124,10 @@ var _ = function() {
 				var replacement = formObject.values["replaceInput"]
 				var replaceAll = formObject.values["replaceAllToggleInput"]
 			}
+			
 			if (caseSensitive) {
-				var regex = new RegExp(search, 'g')
 				var findOptions = [Text.FindOption.RegularExpression]
 			} else {
-				var regex = new RegExp(search, 'gi')
 				var findOptions = [Text.FindOption.RegularExpression, Text.FindOption.CaseInsensitive]
 				
 			}
@@ -177,7 +176,6 @@ var _ = function() {
 						var textObj = item.valueForColumn(col)
 						if (textObj) {
 							var str = textObj.string
-							var matches = str.match(regex)
 							var ranges = findGlobal(textObj, search, findOptions)
 							
 							if (ranges) {
@@ -187,10 +185,10 @@ var _ = function() {
 								// Construct alerts
 								var alertTitle = "Confirmation"
 								
-								if (matches.length === 1) {
+								if (ranges.length === 1) {
 									var alertMessage = '1 match is found'
 								} else {
-									var alertMessage = matches.length + ' matches are found'
+									var alertMessage = ranges.length + ' matches are found'
 								}
 								
 								if (items.length > 1) {
@@ -287,6 +285,7 @@ var _ = function() {
 								var textObj = items[obj.itemIndex].valueForColumn(textColumns[obj.columnIndex])
 								var ranges = findGlobal(textObj, search, findOptions)
 								
+								// Restore background colour
 								ranges.forEach((r, i) => {
 									var ogColour = Color.RGB(ogBackgrounds[i].r, ogBackgrounds[i].g, ogBackgrounds[i].b, ogBackgrounds[i].a)
 									textObj.styleForRange(r).set(Style.Attribute.BackgroundColor, ogColour)
@@ -312,7 +311,7 @@ var _ = function() {
 								})
 								
 								
-								Timer.once(0.8, () => {
+								Timer.once(0.6, () => {
 									// Needs to re-assign every objects needed as they tend to be invalidated in timer
 									var items = []
 									document.editors[0].selection.items.forEach(itm => {
@@ -322,7 +321,7 @@ var _ = function() {
 									var textColumns = columns.filter(function(column) {
 										if (document.editors[0].visibilityOfColumn(column)) {
 											if (column.type === Column.Type.Text) {
-												if (textColumnTitles.indexOf(column.title) !== -1) {return column}
+												if (textColumnTitles.indexOf(column.title) !== -1 || column.title === '') {return column}
 											}
 										}
 									})
@@ -330,12 +329,14 @@ var _ = function() {
 									var textObj = items[obj.itemIndex].valueForColumn(textColumns[obj.columnIndex])
 									var ranges = findGlobal(textObj, search, findOptions)
 									
+									// Restore background colour
 									ranges.forEach((r, i) => {
 										var ogColour = Color.RGB(ogBackgrounds[i].r, ogBackgrounds[i].g, ogBackgrounds[i].b, ogBackgrounds[i].a)
 										textObj.styleForRange(r).set(Style.Attribute.BackgroundColor, ogColour)
 									})
 									
-									textObj.string = textObj.string.replace(regex, replacement)
+									// Replace matched texts
+									replaceGlobal(textObj, search, findOptions, replacement)
 									
 								})
 							} else {
@@ -364,20 +365,14 @@ var _ = function() {
 				
 				
 			} else {
+				var count = 0
 				items.forEach((item, itemIndex) => {
 					textColumns.forEach((col, colIndex) => {
 						console.log('at item', itemIndex + 1, '/', items.length, 'column', colIndex + 1, '/', textColumns.length)
 						var textObj = item.valueForColumn(col)
 						if (textObj) {
-							var str = textObj.string
+							count += replaceGlobal(textObj, search, findOptions, replacement)
 							
-							var matches = str.match(regex)
-							if (matches) {
-								var node = editor.nodeForObject(item)
-								node.reveal()
-								editor.scrollToNode(node)
-								textObj.string = str.replace(regex, replacement)
-							}
 						}
 					})
 				})
@@ -386,6 +381,13 @@ var _ = function() {
 						columns[duplicateColumnIndices[i]].title = title
 					})
 				}
+				if (count === 1) {
+					var alertMessage = '1 match has been replaced.'
+				} else {
+					var alertMessage = count + ' matches have been replaced.'
+				}
+				var alert = new Alert('Confirmation', alertMessage)
+				alert.show()
 			}
 		})
 		
@@ -417,6 +419,18 @@ function findGlobal(textObj, search, findOptions) {
 	} else {
 		return ranges
 	}
+}
+
+function replaceGlobal(textObj, search, findOptions, replacement) {
+	var count = 0
+	console.log('replacing', search, 'in\n', textObj.string, 'with', replacement)
+	while (textObj.find(search, findOptions, null)) {
+		var range = textObj.find(search, findOptions, null)
+		var text = new Text(replacement, textObj.styleForRange(range))
+		textObj.replace(range, text)
+		count += 1
+	}
+	return count
 }
 
 function renameStrings(arr) {

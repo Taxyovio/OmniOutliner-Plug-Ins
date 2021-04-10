@@ -1,4 +1,5 @@
 // This action pastes the array of objects from Clipboard into the selected column of the selected rows.
+// The clipboard item list and row list are truncated to the length of the shorter one.
 var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
