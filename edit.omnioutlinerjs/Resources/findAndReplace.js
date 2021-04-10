@@ -4,6 +4,8 @@ var _ = function() {
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
+		
+		const delay = 0.8 // Delay for	temporary match highlights
 		const editor = selection.editor
 		
 		var textColumns = columns.filter(function(column) {
@@ -267,7 +269,7 @@ var _ = function() {
 							})
 							
 							
-							Timer.once(0.6, () => {
+							Timer.once(delay, () => {
 								// Needs to re-assign every objects needed as they tend to be invalidated in timer
 								var items = []
 								document.editors[0].selection.items.forEach(itm => {
@@ -311,7 +313,7 @@ var _ = function() {
 								})
 								
 								
-								Timer.once(0.6, () => {
+								Timer.once(delay, () => {
 									// Needs to re-assign every objects needed as they tend to be invalidated in timer
 									var items = []
 									document.editors[0].selection.items.forEach(itm => {
