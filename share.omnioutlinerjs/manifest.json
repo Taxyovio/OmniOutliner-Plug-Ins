@@ -6,4 +6,5 @@
 	{"image":"icon.png","identifier":"shareAttachment"},
 	{"image":"icon.png","identifier":"shareItemLink"},
 	{"image":"icon.png","identifier":"shareAsMarkdown"},
+	{"image":"icon.png","identifier":"shareClipboard"},
 ],"defaultLocale":"en"}

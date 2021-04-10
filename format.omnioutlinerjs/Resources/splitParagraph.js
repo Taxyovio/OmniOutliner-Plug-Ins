@@ -1,5 +1,5 @@
 // This action splits the texts in the selected column according to paragraphs for the selected rows. Note that the selected nodd will be turned into the last paragraoh.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -9,21 +9,21 @@ var _ = function(){
 		
 		// List all visible text columns
 		var editor = document.editors[0]
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
 		if (filteredColumns.length === 0) {
-			throw new Error("This document has no text columns.")
+			throw new Error("This document has no visible text columns.")
 		}
 		
 		
-		var filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		var filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column is the only text column with empty title
 				return 'Notes'
 			}
@@ -56,12 +56,12 @@ var _ = function(){
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			var selectedColumnTitle = selectedColumn.title
 			
@@ -70,10 +70,11 @@ var _ = function(){
 				var duplicateColumns = {"columns":[], "titles":[], "indices":[]}
 				filteredColumnTitles = renameStrings(filteredColumnTitles)
 				filteredColumns.forEach((column,index) => {
-					if (column.title !== ''){
+					if (column.title !== '') {
 						if (column.title !== filteredColumnTitles[index]) {
 							duplicateColumns.columns.push(column)
 							duplicateColumns.titles.push(column.title)
+							// Adding the index of the column in all columns, not filtered columns
 							duplicateColumns.indices.push(columns.indexOf(column))
 							column.title = filteredColumnTitles[index]
 						}
@@ -84,12 +85,12 @@ var _ = function(){
 			}
 			
 			
-			selection.nodes.forEach(function(node, index){
+			selection.nodes.forEach(function(node, index) {
 				editor.copyNodes([node],pb)
 				// Get the text object from topic column
 				var textObj = node.valueForColumn(selectedColumn)
 				var paragraphArray = textObj.paragraphs
-				var paragraphStringArray = paragraphArray.map(function(par){
+				var paragraphStringArray = paragraphArray.map(function(par) {
 					if (par.string && /\S/.test(par.string)) {
 						return par.string.trim()
 					}
@@ -107,24 +108,24 @@ var _ = function(){
 					
 					// In the Timer, all user defined objects get invalidated. 
 					// Usable objects: document, columns, rootItem, outlineColumn, noteColumn, statusColumn
-					Timer.repeating(0, function(timer){
+					Timer.repeating(0, function(timer) {
 						var node = document.editors[0].selection.nodes[index]
 						if (selectedColumnTitle === '') {
 							var column = document.outline.noteColumn
 						} else {
 							var editor = document.editors[0]
 							
-							var filteredColumns = columns.filter(function(column){
-								if (editor.visibilityOfColumn(column)){
-									if (column.type === Column.Type.Text){return column}
+							var filteredColumns = columns.filter(function(column) {
+								if (editor.visibilityOfColumn(column)) {
+									if (column.type === Column.Type.Text) {return column}
 								}
 							})
 							
 							
-							var filteredColumnTitles = filteredColumns.map(function(column){
-								if (column.title !== ''){
+							var filteredColumnTitles = filteredColumns.map(function(column) {
+								if (column.title !== '') {
 									return column.title
-								} else if (column === document.outline.noteColumn){
+								} else if (column === document.outline.noteColumn) {
 								// The note column is the only text column with empty title
 									return 'Notes'
 								}
@@ -132,7 +133,7 @@ var _ = function(){
 							var column = columnByTitle(filteredColumns, selectedColumnTitle)
 						}
 						
-						if (counter === repeats){
+						if (counter === repeats) {
 							if (duplicateColumnTitles) {
 								duplicateColumnTitles.forEach((title, i) => {
 									columns[duplicateColumnIndices[i]].title = title
@@ -166,7 +167,7 @@ var _ = function(){
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	});
@@ -174,14 +175,14 @@ var _ = function(){
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0){return true} else {return false}
+		if(selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;
 }();
 _;
 
-function renameStrings(arr){
+function renameStrings(arr) {
 	var count = {}
 	arr.forEach(function(x, i) {
 		if (arr.indexOf(x) !== i) {

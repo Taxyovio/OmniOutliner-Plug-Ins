@@ -1,10 +1,10 @@
 // This action imports bibtex entries into rows from clipboard or bib file.
-var _ = function(){
-	var action = new PlugIn.Action(function(selection){
+var _ = function() {
+	var action = new PlugIn.Action(function(selection) {
 		const Parser = this.plugIn.library('Parser')
 		// If clipboard contains bibtex string, import that string.
 		var pb = Pasteboard.general
-		if (pb.hasStrings && /^@/.test(pb.string)){
+		if (pb.hasStrings && /^@/.test(pb.string)) {
 			var alertTitle = "BibTeX"
 			var alertMessage = pb.string
 			var alert = new Alert(alertTitle, alertMessage)
@@ -13,7 +13,7 @@ var _ = function(){
 			var alertPromise = alert.show()
 			
 			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 1){
+				if (buttonIndex === 1) {
 					console.log("Continue script")
 					var bibStr = pb.string
 					bibStr = escapeBibStr(bibStr) // Escape special chars \ and { }
@@ -34,11 +34,11 @@ var _ = function(){
 			pickerPromise = picker.show()
 			
 			// PROMISE FUNCTION CALLED UPON PICKER APPROVAL
-			pickerPromise.then(function(urlsArray){
+			pickerPromise.then(function(urlsArray) {
 				urlsArray.forEach(url => {
 					var filename = decodeURIComponent(url.string.substring(url.string.lastIndexOf('/')+1))
 					console.log('Importing: ', filename)
-					url.fetch(function(data){
+					url.fetch(function(data) {
 						var bibStr = data.toString()
 						//bibStr = escapeBibStr(bibStr) // Escape special chars \ and { }
 						importBibTeX(bibStr, Parser)
@@ -48,7 +48,7 @@ var _ = function(){
 			})
 
 			// PROMISE FUNCTION CALLED UPON PICKER CANCELLATION
-			pickerPromise.catch(function(error){
+			pickerPromise.catch(function(error) {
 				console.log("form cancelled", error.message)
 			})		
 		
@@ -58,7 +58,7 @@ var _ = function(){
 	});
 
 	// routine determines if menu item is enabled
-	action.validate = function(selection){
+	action.validate = function(selection) {
 		if (document && selection.items.length <= 1) {return true} else {return false}
 	};
 

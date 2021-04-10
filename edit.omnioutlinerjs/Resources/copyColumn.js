@@ -1,4 +1,4 @@
-// This action presents the texts from selected column from selected rows in Share Sheet.
+// This action copies the texts from selected column from selected rows.
 var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
@@ -32,13 +32,13 @@ var _ = function() {
 		if (selection.items.length > 1) {
 			var arrayToggle = new Form.Field.Checkbox(
 				'arrayToggleInput',
-				'Share as Array',
+				'Copy as Array',
 				false
 			)
 			inputForm.addField(arrayToggle)
 		}
 		// PRESENT THE FORM TO THE USER
-		formPrompt = "Share Column"
+		formPrompt = "Copy Column"
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
@@ -110,12 +110,10 @@ var _ = function() {
 				
 			})
 			if (shareAsArray) {
-				var sharePanel = new SharePanel(strings)
+				Pasteboard.general.strings = strings
 			} else {
-				var sharePanel = new SharePanel([strings.join('\n')])
+				Pasteboard.general.strings = [strings.join('\n')]
 			}
-			
-			sharePanel.show()
 			
 		})
 		

@@ -1,14 +1,14 @@
 // This action creates/updates new tasks/projects into the Things app from the selected rows. Optionally a link to the created/updated item is passed back and added to a column 'Things ID'. For updating items, the authentication token needs to be provided either in the input form or from the first row in a column 'Authentication Token'.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
 		
 		var editor = document.editors[0]
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
@@ -17,10 +17,10 @@ var _ = function(){
 		}
 		
 		
-		var filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		var filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column is the only text column with empty title
 				return 'Notes'
 			}
@@ -177,7 +177,7 @@ var _ = function(){
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			var keys = formObject.fields.map(field => field.key)
 			
 			if (formObject.values['projectInput'] === true) {
@@ -221,7 +221,7 @@ var _ = function(){
 		}
 		
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			console.log('Processing form')
 			var titleColumn = formObject.values["titleInput"]
 			var notesColumn = formObject.values["notesInput"]
@@ -253,7 +253,7 @@ var _ = function(){
 					var alertPromise = alert.show()
 					
 					alertPromise.then(buttonIndex => {
-						if (buttonIndex === 1){
+						if (buttonIndex === 1) {
 							console.log("Continue script")
 							document.outline.addColumn(Column.Type.Date, editor.afterColumn(), 
 								function (column) {
@@ -278,7 +278,7 @@ var _ = function(){
 					var alertPromise = alert.show()
 					
 					alertPromise.then(buttonIndex => {
-						if (buttonIndex === 1){
+						if (buttonIndex === 1) {
 							console.log("Continue script")
 							document.outline.addColumn(Column.Type.Date, editor.afterColumn(), 
 								function (column) {
@@ -302,7 +302,7 @@ var _ = function(){
 					var alertPromise = alert.show()
 					
 					alertPromise.then(buttonIndex => {
-						if (buttonIndex === 1){
+						if (buttonIndex === 1) {
 							console.log("Continue script")
 							document.outline.addColumn(Column.Type.Text, editor.afterColumn(), 
 								function (column) {
@@ -503,7 +503,7 @@ var _ = function(){
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 		

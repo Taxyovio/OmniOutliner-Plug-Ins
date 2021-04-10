@@ -1,18 +1,51 @@
 // This action copies the item link(s) for the selected row(s).
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
 		const editor = selection.editor
 		
+		var textColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
+			}
+		})
+		
+		if (textColumns.length === 0) {
+			throw new Error("This document has no visible text columns.")
+		}
+		
+		var textColumnTitles = textColumns.map(function(column, index) {
+			if (column.title !== '') {
+				return column.title
+			} else if (column === document.outline.noteColumn) {
+			// The note column is the only text column with empty title
+				return 'Notes'
+			}
+		})
+		
+		
+		
+		
 		var optionForm = new Form()
+		
+		
+		// Use titled of the columns instead of column objects so ut can be passed into timer
+		var columnField = new Form.Field.MultipleOptions(
+			'columnInput',
+			'Column',
+			textColumnTitles,
+			textColumnTitles,
+			textColumnTitles
+		)
 		
 		var findField = new Form.Field.String(
 			'findInput',
 			'Find',
 			''
 		)
+		
 		var caseToggle = new Form.Field.Checkbox(
 			'caseToggleInput',
 			'Case Sensitivity',
@@ -43,6 +76,7 @@ var _ = function(){
 			)
 		}
 		
+		optionForm.addField(columnField)
 		optionForm.addField(findField)
 		optionForm.addField(caseToggle)
 		optionForm.addField(replaceToggle)
@@ -51,7 +85,7 @@ var _ = function(){
 		formPromise = optionForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		optionForm.validate = function(formObject){
+		optionForm.validate = function(formObject) {
 			var keys = formObject.fields.map(field => field.key)
 			if (formObject.values['replaceToggleInput']) {
 				if (keys.indexOf('replaceInput') === -1) {
@@ -72,11 +106,17 @@ var _ = function(){
 					formObject.removeField(formObject.fields[keys.indexOf('replaceInput')])
 				}
 			}
-			return null
+			if (formObject.values['columnInput'].length !== 0 && formObject.values['findInput']) {
+				return null
+			} else {
+				return false
+			}
+			
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
+			textColumnTitles = formObject.values["columnInput"]
 			var search = formObject.values["findInput"]
 			var caseSensitive = formObject.values["caseToggleInput"]
 			var replace = formObject.values["replaceToggleInput"]
@@ -92,6 +132,27 @@ var _ = function(){
 				var findOptions = [Text.FindOption.RegularExpression, Text.FindOption.CaseInsensitive]
 				
 			}
+			
+			// Rename columns with the same titles temporarily to work around bugs in Timer
+			if (hasDuplicates(textColumnTitles)) {
+				var duplicateColumns = {"columns":[], "titles":[], "indices":[]}
+				textColumnTitles = renameStrings(textColumnTitles)
+				textColumns.forEach((column,index) => {
+					if (column.title !== '') {
+						if (column.title !== textColumnTitles[index]) {
+							duplicateColumns.columns.push(column)
+							duplicateColumns.titles.push(column.title)
+							// Adding the index of the column in all columns, not filtered columns
+							duplicateColumns.indices.push(columns.indexOf(column))
+							column.title = textColumnTitles[index]
+						}
+					}
+				})
+				var duplicateColumnTitles = duplicateColumns.titles
+				var duplicateColumnIndices = duplicateColumns.indices
+			}
+			
+			
 			// Get all selected items and their descendants to search through
 			var items = []
 			selection.items.forEach(itm => {
@@ -99,8 +160,13 @@ var _ = function(){
 				items = items.concat(itm.descendants)
 			})
 			
-			var textColumns = columns.filter(col => {return col.type === Column.Type.Text})
-			if (textColumns.length === 0) {throw new Error('This document has no text columns.')}
+			// Filter columns by selected titles
+			textColumns = textColumns.filter(col => {
+				if (textColumnTitles.indexOf(col.title) !== -1 || col.title === '') {
+					return col
+				}
+			})
+			
 			
 			if (!replaceAll) {
 				var objArr = []
@@ -131,7 +197,7 @@ var _ = function(){
 									alertMessage += ' at row ' + (itemIndex + 1) + ' out of ' + items.length
 									if (textColumns.length > 1) {
 										if (col.title) {
-											alertMessage += ', column: ' + col.title
+											alertMessage += ', column: ' + col.title.trim()
 										} else {
 											alertMessage += ', column: Notes'
 										}
@@ -139,7 +205,7 @@ var _ = function(){
 								} else {
 									if (textColumns.length > 1) {
 										if (col.title) {
-											alertMessage += ', column: ' + col.title
+											alertMessage += ', column: ' + col.title.trim()
 										} else {
 											alertMessage += ', column: Notes'
 										}
@@ -148,7 +214,7 @@ var _ = function(){
 								alertMessage += '.'
 								
 								var alert = new Alert(alertTitle, alertMessage)
-								alert.addOption("Done")
+								alert.addOption("Cancel")
 								alert.addOption("Show")
 								if (replace) {alert.addOption("Replace")}
 								
@@ -171,20 +237,30 @@ var _ = function(){
 					var item = obj.item
 					var textObj = obj.textObj
 					var ranges = obj.ranges
+					var alert = obj.alert
 					
-					obj.alert.show().then(buttonIndex => {
+					if (d < objArr.length - 1) {alert.addOption("Next")}
+					
+					alert.show().then(buttonIndex => {
 						var node = editor.nodeForObject(item)
-						if (buttonIndex === 0){
-							console.log("done")
+						if (buttonIndex === 0) {
+							if (duplicateColumnTitles) {
+								duplicateColumnTitles.forEach((title, i) => {
+									columns[duplicateColumnIndices[i]].title = title
+								})
+							}
+							console.log("cancel")
 							return action
-						} else {
-							
+						} else if (buttonIndex === 1) {
+							console.log('show')
 							node.reveal()
 							editor.scrollToNode(node)
-							console.log(ranges)
+							
 							// RGBA values for original background colours to pass into the timer
 							var ogBackgrounds = ranges.map(r => {
 								var ogColour = textObj.styleForRange(r).get(Style.Attribute.BackgroundColor)
+								
+								// Change backgroud colour to light yellow temporarily
 								var lightYellow = Color.RGB(1, 1, 0.1, 0.5)
 								textObj.styleForRange(r).set(Style.Attribute.BackgroundColor, ogColour.blend(lightYellow, 0.8))
 								
@@ -193,14 +269,21 @@ var _ = function(){
 							})
 							
 							
-							Timer.once(0.8, () => {
+							Timer.once(0.6, () => {
 								// Needs to re-assign every objects needed as they tend to be invalidated in timer
 								var items = []
 								document.editors[0].selection.items.forEach(itm => {
 									items.push(itm)
 									items = items.concat(itm.descendants)
 								})
-								var textColumns = columns.filter(col => {return col.type === Column.Type.Text})
+								var textColumns = columns.filter(function(column) {
+									if (document.editors[0].visibilityOfColumn(column)) {
+										if (column.type === Column.Type.Text) {
+											if (textColumnTitles.indexOf(column.title) !== -1 || column.title === '') {return column}
+										}
+									}
+								})
+								
 								var textObj = items[obj.itemIndex].valueForColumn(textColumns[obj.columnIndex])
 								var ranges = findGlobal(textObj, search, findOptions)
 								
@@ -208,21 +291,71 @@ var _ = function(){
 									var ogColour = Color.RGB(ogBackgrounds[i].r, ogBackgrounds[i].g, ogBackgrounds[i].b, ogBackgrounds[i].a)
 									textObj.styleForRange(r).set(Style.Attribute.BackgroundColor, ogColour)
 								})
-								if (buttonIndex === 1) {
-									console.log('show')
-								} else if (buttonIndex === 2) {
-									console.log("replace")
-									textObj.string = textObj.string.replace(regex, replacement)
-								}
+								
 							})
 							
 							
-							d++
-							if (d < objArr.length) {
-								showNextAlert(d)
+						} else if (buttonIndex === 2) {
+							if (replace) {
+								console.log("replace")
+								node.reveal()
+								editor.scrollToNode(node)
+								
+								// RGBA values for original background colours to pass into the timer
+								var ogBackgrounds = ranges.map(r => {
+									var ogColour = textObj.styleForRange(r).get(Style.Attribute.BackgroundColor)
+									var lightYellow = Color.RGB(1, 1, 0.1, 0.5)
+									textObj.styleForRange(r).set(Style.Attribute.BackgroundColor, ogColour.blend(lightYellow, 0.8))
+									
+									var rgb = {r: ogColour.red, g: ogColour.green, b: ogColour.blue, a: ogColour.alpha} 
+									return rgb
+								})
+								
+								
+								Timer.once(0.8, () => {
+									// Needs to re-assign every objects needed as they tend to be invalidated in timer
+									var items = []
+									document.editors[0].selection.items.forEach(itm => {
+										items.push(itm)
+										items = items.concat(itm.descendants)
+									})
+									var textColumns = columns.filter(function(column) {
+										if (document.editors[0].visibilityOfColumn(column)) {
+											if (column.type === Column.Type.Text) {
+												if (textColumnTitles.indexOf(column.title) !== -1) {return column}
+											}
+										}
+									})
+									
+									var textObj = items[obj.itemIndex].valueForColumn(textColumns[obj.columnIndex])
+									var ranges = findGlobal(textObj, search, findOptions)
+									
+									ranges.forEach((r, i) => {
+										var ogColour = Color.RGB(ogBackgrounds[i].r, ogBackgrounds[i].g, ogBackgrounds[i].b, ogBackgrounds[i].a)
+										textObj.styleForRange(r).set(Style.Attribute.BackgroundColor, ogColour)
+									})
+									
+									textObj.string = textObj.string.replace(regex, replacement)
+									
+								})
 							} else {
-								console.log("done")
+								console.log("next")
 							}
+						} else {
+							console.log("next")
+						}
+						
+						// Recursion
+						d++
+						if (d < objArr.length) {
+							showNextAlert(d)
+						} else {
+							if (duplicateColumnTitles) {
+								duplicateColumnTitles.forEach((title, i) => {
+									columns[duplicateColumnIndices[i]].title = title
+								})
+							}
+							console.log("done")
 						}
 						
 					})
@@ -248,6 +381,11 @@ var _ = function(){
 						}
 					})
 				})
+				if (duplicateColumnTitles) {
+					duplicateColumnTitles.forEach((title, i) => {
+						columns[duplicateColumnIndices[i]].title = title
+					})
+				}
 			}
 		})
 		
@@ -271,7 +409,6 @@ function findGlobal(textObj, search, findOptions) {
 		var range = textObj.find(search, findOptions, searchRange)
 		ranges.push(range)
 		searchRange = new Text.Range(range.end, textObj.end)
-		console.log(searchRange.isEmpty)
 	}
 	
 	if (ranges.length === 0) {
@@ -279,5 +416,31 @@ function findGlobal(textObj, search, findOptions) {
 		return null
 	} else {
 		return ranges
+	}
+}
+
+function renameStrings(arr) {
+	var count = {}
+	arr.forEach(function(x, i) {
+		if (arr.indexOf(x) !== i) {
+			var c = x in count ? count[x] = count[x] + 1 : count[x] = 1
+			var j = c + 1
+			var k = x + ' '.repeat(j)
+			while(arr.indexOf(k) !== -1) k = x + ' ' + (++j)
+			arr[i] = k
+		}
+	})
+	return arr
+}
+
+function hasDuplicates(array) {
+	return (new Set(array)).size !== array.length;
+}
+
+function columnByTitle(columnArray, title) {
+	for (var i = 0; i < columnArray.length; i++) {
+		if (columnArray[i].title === title) {
+			return columnArray[i]
+		}
 	}
 }

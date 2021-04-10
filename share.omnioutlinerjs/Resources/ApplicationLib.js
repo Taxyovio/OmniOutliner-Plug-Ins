@@ -1,7 +1,7 @@
 var _ = function() {
 	var ApplicationLib = new PlugIn.Library(new Version("1.0"));
 
-	ApplicationLib.isBeforeCurVers = function(versStrToCheck){
+	ApplicationLib.isBeforeCurVers = function(versStrToCheck) {
 		curVersStr = app.version
 		curVers = new Version(curVersStr)
 		versToCheck = new Version(versStrToCheck)
@@ -10,7 +10,7 @@ var _ = function() {
 		return result
 	}
 
-	ApplicationLib.isEqualToCurVers = function(versStrToCheck){
+	ApplicationLib.isEqualToCurVers = function(versStrToCheck) {
 		curVersStr = app.version
 		curVers = new Version(curVersStr)
 		versToCheck = new Version(versStrToCheck)
@@ -19,7 +19,7 @@ var _ = function() {
 		return result
 	}
 
-	ApplicationLib.isAtLeastCurVers = function(versStrToCheck){
+	ApplicationLib.isAtLeastCurVers = function(versStrToCheck) {
 		curVersStr = app.version
 		curVers = new Version(curVersStr)
 		versToCheck = new Version(versStrToCheck)
@@ -28,7 +28,7 @@ var _ = function() {
 		return result
 	}
 
-	ApplicationLib.isAfterCurVers = function(versStrToCheck){
+	ApplicationLib.isAfterCurVers = function(versStrToCheck) {
 		curVersStr = app.version
 		curVers = new Version(curVersStr)
 		versToCheck = new Version(versStrToCheck)
@@ -38,12 +38,12 @@ var _ = function() {
 	}
 	
 	// returns a list of functions
-	ApplicationLib.handlers = function(){
+	ApplicationLib.handlers = function() {
 		return "\n// ApplicationLib ©2021 Taxyovio\n• isBeforeCurVers(versStrToCheck)\n• isEqualToCurVers(versStrToCheck)\n• isAtLeastCurVers(versStrToCheck)\n• isAfterCurVers(versStrToCheck)"
 	}
 		
 	// returns contents of matching strings file
-	ApplicationLib.documentation = function(){
+	ApplicationLib.documentation = function() {
 		// create a version object
 		var aVersion = new Version("1.0")
 		// look up the plugin
@@ -51,7 +51,7 @@ var _ = function() {
 		// get the url for the text file inside this plugin
 		var url = plugin.resourceNamed("ApplicationLib.strings")
 		// read the file
-		url.fetch(function (data){
+		url.fetch(function (data) {
 			dataString = data.toString()
 			console.log(dataString) // show in console
 			return dataString

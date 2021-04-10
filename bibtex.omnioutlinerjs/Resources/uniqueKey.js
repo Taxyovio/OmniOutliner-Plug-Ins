@@ -1,6 +1,6 @@
 // This action renames duplicate entry keys to make them unique.
-var _ = function(){
-	var action = new PlugIn.Action(function(selection){
+var _ = function() {
+	var action = new PlugIn.Action(function(selection) {
 		editor = document.editors[0]
 		if (!document.outline.columns.byTitle('EntryKey')) {
 			throw new Error('No column: EntryKey.')
@@ -60,7 +60,7 @@ var _ = function(){
 			var alertPromise = alert.show()
 			
 			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 1){
+				if (buttonIndex === 1) {
 					console.log("Continue script")
 					
 					var uniqueKeys = renameStrings(keysObj.keys)
@@ -93,7 +93,7 @@ var _ = function(){
 	});
 
 	// routine determines if menu item is enabled
-	action.validate = function(selection){
+	action.validate = function(selection) {
 		if (document) {return true} else {return false}
 	};
 
@@ -101,7 +101,7 @@ var _ = function(){
 }();
 _;
 
-function renameStrings(arr){
+function renameStrings(arr) {
 	var count = {}
 	arr.forEach(function(x, i) {
 		if (arr.indexOf(x) !== i) {

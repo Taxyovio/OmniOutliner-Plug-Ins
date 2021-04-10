@@ -1,5 +1,5 @@
 // This action pastes the style of the selected row into the targets selected in the form.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -144,7 +144,7 @@ var _ = function(){
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			var keys = formObject.fields.map(field => field.key)
 			
 			var allChosen = formObject.values["allInput"]
@@ -334,7 +334,7 @@ var _ = function(){
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var sourceStyle = selectedItem.style
 			
 			var allChosen = formObject.values["allInput"]
@@ -419,7 +419,7 @@ var _ = function(){
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	});
@@ -427,7 +427,7 @@ var _ = function(){
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length === 1){return true} else {return false}
+		if(selection.items.length === 1) {return true} else {return false}
 	};
 	
 	return action;

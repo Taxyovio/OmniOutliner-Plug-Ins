@@ -1,6 +1,6 @@
 // This action trimes all column titles except Status and Notes.
 (() => {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		var trimmableColumns = columns.filter(col => {
@@ -8,7 +8,7 @@
 		})
 		var count = 0
 		trimmableColumns.forEach(col => {
-			if (col.title !== col.title.trim()){
+			if (col.title !== col.title.trim()) {
 				count += 1
 				col.title = col.title.trim()
 			}

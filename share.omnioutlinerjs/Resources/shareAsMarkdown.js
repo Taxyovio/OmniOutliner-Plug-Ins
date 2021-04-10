@@ -1,14 +1,14 @@
 // This action presents the selected rows in chosen column as markdown file in Share Sheet.
 // If there's no header markup (#) in any rows of the document in the chosen column, then the export adds # according to level to every selected row. Otherwise, only rows with # are exported with # according to level, while others are exported as body texts.
 var _ = function() {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		var selectedItems = selection.items
 		
 		// List all visible text columns
 		var editor = document.editors[0]
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
@@ -17,10 +17,10 @@ var _ = function() {
 		}
 		
 		
-		var filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		var filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -53,16 +53,16 @@ var _ = function() {
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			var strings = []
 			// Get strings from all top level rows to see if there are markdown header markups
-			rootItem.children.forEach(function(item){
+			rootItem.children.forEach(function(item) {
 				if (selectedColumn === document.outline.outlineColumn) {
 					strings.push(item.topic)
 				} else if (selectedColumn === document.outline.noteColumn) {
@@ -76,7 +76,7 @@ var _ = function() {
 			
 			if (!hasHash(strings)) {
 				strings = []
-				selectedItems.forEach(function(item){
+				selectedItems.forEach(function(item) {
 					var level = item.level
 					if (selectedColumn === document.outline.outlineColumn) {
 						strings.push('#'.repeat(level + 1) + " " + item.topic)
@@ -92,7 +92,7 @@ var _ = function() {
 				})
 			} else {
 				strings = []
-				selectedItems.forEach(function(item){
+				selectedItems.forEach(function(item) {
 					var level = item.level
 					if (selectedColumn === document.outline.outlineColumn) {
 						if (/^#/.test(item.topic)) {
@@ -130,7 +130,7 @@ var _ = function() {
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	
@@ -138,7 +138,7 @@ var _ = function() {
 	
 	
 	
-	action.validate = function(selection, sender){
+	action.validate = function(selection, sender) {
 		if (selection.items.length > 0) {
 			return true
 		} else {

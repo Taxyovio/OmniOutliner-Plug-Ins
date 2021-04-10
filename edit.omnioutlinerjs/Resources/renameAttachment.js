@@ -1,14 +1,14 @@
 // This action renames attachments after replacing illegal characters in filenames to similar but legal ones for the files attached to the text columns of the selected rows.
 (() => {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		
 		// List all text columns
 		var editor = document.editors[0]
 		
-		var textColumns = columns.filter(function(column){
-			if (column.type === Column.Type.Text){return column}
+		var textColumns = columns.filter(function(column) {
+			if (column.type === Column.Type.Text) {return column}
 		})
 		
 		if (textColumns.length === 0) {
@@ -58,7 +58,7 @@
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			var keys = formObject.fields.map(field => field.key)
 			if (keys.indexOf('renamingRuleInput') === -1) {
 				if (formObject.values["automaticToggleInput"] === true) {
@@ -78,7 +78,7 @@
 		}
 		
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var review = formObject.values["reviewToggleInput"]
 			var legalise = formObject.values["legaliseToggleInput"]
 			
@@ -131,13 +131,13 @@
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 		
 	});
 	
-	action.validate = function(selection, sender){
+	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		return (selection.items.length > 0)
@@ -181,7 +181,7 @@ function renameAndReview(selection, textColumns, renamingRule, matches, matchedC
 						var range = attachmentRanges[index]
 						
 						// We only want to rename files, not directories nor symbolic links
-						if(wrapper.type === FileWrapper.Type.File){
+						if(wrapper.type === FileWrapper.Type.File) {
 							
 							// Original filename
 							var filename = wrapper.preferredFilename
@@ -334,7 +334,7 @@ function renameAndReview(selection, textColumns, renamingRule, matches, matchedC
 							formPromise = inputForm.show(formPrompt,"Continue")
 							
 							// VALIDATE THE USER INPUT
-							inputForm.validate = function(formObject){
+							inputForm.validate = function(formObject) {
 								if (formObject.values["toggleInput"] === false) {
 									return true
 								} else if (/\s/.test(formObject.values["extensionInput"].trim())) {
@@ -347,7 +347,7 @@ function renameAndReview(selection, textColumns, renamingRule, matches, matchedC
 							}
 						
 							// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-							formPromise.then(function(formObject){
+							formPromise.then(function(formObject) {
 								var skipRenaming = !formObject.values["toggleInput"]
 								
 								if (!skipRenaming) {
@@ -388,7 +388,7 @@ function renameAndReview(selection, textColumns, renamingRule, matches, matchedC
 							})
 							
 							// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-							formPromise.catch(function(err){
+							formPromise.catch(function(err) {
 								console.log("form cancelled", err.message)
 							})
 						}
@@ -422,7 +422,7 @@ function rename(selection, textColumns, renamingRule, matches, matchedColumns, l
 						var range = attachmentRanges[index]
 						
 						// We only want to rename files, not directories nor symbolic links
-						if(wrapper.type === FileWrapper.Type.File){
+						if(wrapper.type === FileWrapper.Type.File) {
 							
 							// Original filename
 							var filename = wrapper.preferredFilename

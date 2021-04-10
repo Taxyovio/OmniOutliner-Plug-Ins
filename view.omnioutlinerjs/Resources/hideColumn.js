@@ -1,6 +1,6 @@
 // This action hides all columns except Topic and Notes.
 (() => {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		

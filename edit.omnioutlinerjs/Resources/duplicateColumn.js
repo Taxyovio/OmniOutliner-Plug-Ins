@@ -1,5 +1,5 @@
 // This action duplicates the chosen column and contents of all rows into the new column.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -10,8 +10,8 @@ var _ = function(){
 		var editor = document.editors[0]
 		var tree = document.outline
 		
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
 				return column
 			}
 		})
@@ -21,10 +21,10 @@ var _ = function(){
 		}
 		
 		
-		var filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		var filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -57,18 +57,18 @@ var _ = function(){
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			console.log('hi')
 			var newColumn = tree.addColumn(
 				selectedColumn.type,
 				editor.afterColumn(selectedColumn), 
-				function(column){
+				function(column) {
 					column.title = selectedColumn.title + ' Copy'
 					try {
 						if (selectedColumn.enumeration !== null) {
@@ -99,7 +99,7 @@ var _ = function(){
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	});

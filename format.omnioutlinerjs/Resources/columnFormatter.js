@@ -1,15 +1,15 @@
 // This action changes the formatter of selected column.
 (() => {
 
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		var selectedItems = selection.items
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
+		filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
 				if (column.type === Column.Type.Date || column.type === Column.Type.Duration || column.type === Column.Type.Number) {
 					return column
 				}
@@ -20,10 +20,10 @@
 			throw new Error("This document has no formattable columns.")
 		}
 		
-		filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -32,7 +32,7 @@
 		// Rename columns with the same titles
 		filteredColumnTitles = renameStrings(filteredColumnTitles)
 		filteredColumns.forEach((column,index) => {
-			if (column.title !== ''){
+			if (column.title !== '') {
 				if (column.title !== filteredColumnTitles[index]) {
 					column.title = filteredColumnTitles[index]
 				}
@@ -59,12 +59,12 @@
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			var selectedColumnType = selectedColumn.type
 			// CREATE FORM FOR GATHERING USER INPUT
@@ -142,7 +142,7 @@
 				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
 				
 				// VALIDATE THE USER INPUT
-				formatterForm.validate = function(formObject){
+				formatterForm.validate = function(formObject) {
 					var keys = formObject.fields.map(field => field.key)
 					
 					if (formObject.values["formatterInput"] === true) {
@@ -184,7 +184,7 @@
 				}
 			
 				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-				formatterFormPromise.then(function(formObject){
+				formatterFormPromise.then(function(formObject) {
 					var selectedFormatter = formObject.values["formatterInput"]
 					
 					var selectedCalendar = formObject.values["calendarInput"]
@@ -212,7 +212,7 @@
 				})
 				
 				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-				formatterFormPromise.catch(function(err){
+				formatterFormPromise.catch(function(err) {
 					console.log("form cancelled", err.message)
 				})
 				
@@ -261,7 +261,7 @@
 				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
 				
 				// VALIDATE THE USER INPUT
-				formatterForm.validate = function(formObject){
+				formatterForm.validate = function(formObject) {
 					if (isNaN(parseFloat(formObject.values["dayInput"])) || isNaN(parseFloat(formObject.values["weekInput"]))) {
 						throw new Error('Please enter numbers.')
 					} else {
@@ -271,7 +271,7 @@
 				}
 			
 				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-				formatterFormPromise.then(function(formObject){
+				formatterFormPromise.then(function(formObject) {
 					var useVerboseFormat = formObject.values["formatterInput"]
 					var hoursPerDay = parseFloat(formObject.values["dayInput"])
 					var hoursPerWeek = parseFloat(formObject.values["weekInput"])
@@ -290,7 +290,7 @@
 				})
 				
 				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-				formatterFormPromise.catch(function(err){
+				formatterFormPromise.catch(function(err) {
 					console.log("form cancelled", err.message)
 				})
 			}
@@ -338,7 +338,7 @@
 				formatterFormPromise = formatterForm.show(formatterFormPrompt,"Continue")
 				
 				// VALIDATE THE USER INPUT
-				formatterForm.validate = function(formObject){
+				formatterForm.validate = function(formObject) {
 					if (formObject.values["currencyInput"] !== 'None' && formObject.values["formatterInput"] !== 'None') {
 						throw new Error('Formatter and currency options are exclusive.')
 					} else if (formObject.values["currencyInput"] === 'None' && formObject.values["formatterInput"] === 'None') {
@@ -348,7 +348,7 @@
 				}
 			
 				// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-				formatterFormPromise.then(function(formObject){
+				formatterFormPromise.then(function(formObject) {
 					var selectedFormatter = formObject.values["formatterInput"]
 					var selectedCurrency = formObject.values["currencyInput"]
 					if (selectedFormatter !== 'None') {
@@ -359,14 +359,14 @@
 				})
 				
 				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-				formatterFormPromise.catch(function(err){
+				formatterFormPromise.catch(function(err) {
 					console.log("form cancelled", err.message)
 				})
 			}
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 		
@@ -386,7 +386,7 @@ function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index
 }
 
-function renameStrings(arr){
+function renameStrings(arr) {
 	var count = {}
 	arr.forEach(function(x, i) {
 		if (arr.indexOf(x) !== i) {

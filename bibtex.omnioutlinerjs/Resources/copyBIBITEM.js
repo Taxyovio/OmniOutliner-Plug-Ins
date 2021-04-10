@@ -1,5 +1,5 @@
 // This action copies the entry key(s) for the selected row(s) into ~\cite{key1, key2, key3, ...}.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -29,23 +29,23 @@ var _ = function(){
 		}
 		
 		// All text columns titled 'EntryKey'
-		var keyColumns = document.outline.columns.filter(function(column){
+		var keyColumns = document.outline.columns.filter(function(column) {
 			if (column.type === Column.Type.Text && column.title === 'EntryKey') {return column}
 		})
 		// Take the first one as the source column
 		var keyColumn = keyColumns[0]
 		
-		var titleColumns = document.outline.columns.filter(function(column){
+		var titleColumns = document.outline.columns.filter(function(column) {
 			if (column.type === Column.Type.Text && column.title === 'title') {return column}
 		})
 		var titleColumn = titleColumns[0]
 		
-		var authorColumns = document.outline.columns.filter(function(column){
+		var authorColumns = document.outline.columns.filter(function(column) {
 			if (column.type === Column.Type.Text && column.title === 'author') {return column}
 		})
 		var authorColumn = authorColumns[0]
 		
-		var yearColumns = document.outline.columns.filter(function(column){
+		var yearColumns = document.outline.columns.filter(function(column) {
 			if (column.type === Column.Type.Text && column.title === 'year') {return column}
 		})
 		var yearColumn = yearColumns[0]
@@ -105,7 +105,7 @@ var _ = function(){
 		var alertPromise = alert.show()
 		
 		alertPromise.then(buttonIndex => {
-			if (buttonIndex === 1){
+			if (buttonIndex === 1) {
 				console.log("Continue script")
 				Pasteboard.general.string = str
 			} else {

@@ -1,7 +1,7 @@
 // This action requires using the 'Add to Anki' otemplate and appropriate configuration for card types in Anki. Three custom card types are defined with custom fields: {Basic: Front, Back, Reference, Reverse, Extra}, {Cloze: Text, Reference, Extra}, {Input: Front, Back, Reference, Extra}.
 
 // This action creates a new note in Anki Mobile from the selected row using URL schemes. 
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -15,7 +15,7 @@ var _ = function(){
 			var alertPromise = alert.show()
 			
 			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 1){
+				if (buttonIndex === 1) {
 					console.log("Continue script")
 					createNewAnkiTemplate()
 				} else {
@@ -70,7 +70,7 @@ var _ = function(){
 				inputForm.addField(multitaskingField)
 			}
 			
-			inputForm.validate = function(formObject){
+			inputForm.validate = function(formObject) {
 				if (!formObject.values["profileInput"] || !formObject.values["profileInput"].trim()) {
 					throw new Error('Profile name is invalid.')
 				}
@@ -82,14 +82,14 @@ var _ = function(){
 			formPromise = inputForm.show(formPrompt,"Continue")
 			
 			// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-			formPromise.then(function(formObject){
+			formPromise.then(function(formObject) {
 				var profile = formObject.values["profileInput"]
 				// This field is undefined unless selecting multiple rows on iOS.
 				try {var multitasking = formObject.values["multitaskingInput"]} catch(err) {multitasking = false}
 				
 				// Constructing array of urls to call
 				var urls = []
-				selection.items.forEach(function(item){
+				selection.items.forEach(function(item) {
 					try {var front = item.topic} catch(err) {var front = ''}
 					try {var back = item.valueForColumn(columns.byTitle('Back')).string} catch(err) {var back=''}
 					try {var deck = item.valueForColumn(columns.byTitle('Deck')).string} catch(err) {var deck = 'Default'}
@@ -99,25 +99,25 @@ var _ = function(){
 					try {var extra = item.valueForColumn(columns.byTitle('Extra')).string} catch(err) {var extra = ''}
 					try {var reverse = item.valueForColumn(columns.byTitle('Reverse')).name} catch(err) {var reverse = ''}
 					
-					if(front != ''){
+					if(front != '') {
 						front = encodeURIComponent(front)
 						back = encodeURIComponent(back)
 						deck = encodeURIComponent(deck)
 						type = encodeURIComponent(type)
 						tags = encodeURIComponent(tags)
-						if (type === 'Basic' || type === ''){
+						if (type === 'Basic' || type === '') {
 							urlStr = "anki://x-callback-url/addnote?profile=" + profile + "&type=" + type + "&deck=" + deck + "&fldFront=" + front + "&fldBack=" + back + "&tags=" + tags
 							if (reverse === 'Yes') {
 								urlStr = urlStr + "&fldReverse=Y"
 							}
-						} else if (type === 'Cloze'){
+						} else if (type === 'Cloze') {
 							urlStr = "anki://x-callback-url/addnote?profile=" + profile + "&type=" + type + "&deck=" + deck + "&fldText=" + front + "&tags=" + tags
-						} else if (type === 'Input'){
+						} else if (type === 'Input') {
 							urlStr = "anki://x-callback-url/addnote?profile=" + profile + "&type=" + type + "&deck=" + deck + "&fldFront=" + front + "&fldBack=" + back + "&tags=" + tags
 						}
 						
-						if(reference !== ''){urlStr = urlStr + "&fldReference=" + encodeURIComponent(reference)}
-						if(extra !== ''){urlStr = urlStr + "&fldExtra=" + encodeURIComponent(extra)}
+						if(reference !== '') {urlStr = urlStr + "&fldReference=" + encodeURIComponent(reference)}
+						if(extra !== '') {urlStr = urlStr + "&fldExtra=" + encodeURIComponent(extra)}
 						urls.push(URL.fromString(urlStr))
 					}
 					
@@ -134,7 +134,7 @@ var _ = function(){
 					var alertPromise = alert.show()
 					
 					alertPromise.then(buttonIndex => {
-						if (buttonIndex === 1){
+						if (buttonIndex === 1) {
 							console.log("Continue without delay")
 							repeatingCall(urls, 0)
 						} else {
@@ -150,7 +150,7 @@ var _ = function(){
 			})
 			
 			// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-			formPromise.catch(function(err){
+			formPromise.catch(function(err) {
 				console.log("form cancelled", err.message)
 			})
 		}
@@ -159,7 +159,7 @@ var _ = function(){
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0){return true} else {return false}
+		if(selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;
@@ -167,7 +167,7 @@ var _ = function(){
 _;
 
 function createNewAnkiTemplate() {
-	Document.makeNew(function(doc){
+	Document.makeNew(function(doc) {
 		outline = doc.outline
 		editor = doc.editors[0]
 		outline.outlineColumn.title = 'Front'
@@ -269,7 +269,7 @@ function createNewAnkiTemplate() {
 			var alertPromise = alert.show()
 			
 			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 1){
+				if (buttonIndex === 1) {
 					console.log("Continue script")
 					document.close()
 				} else {
@@ -293,15 +293,15 @@ function repeatingCall(urls, delay) {
 	
 	// In the Timer, all user defined objects get invalidated. 
 	// Usable objects: document, columns, rootItem, outlineColumn, noteColumn, statusColumn
-	Timer.repeating(delay, function(timer){
-		if (counter === repeats){
+	Timer.repeating(delay, function(timer) {
+		if (counter === repeats) {
 			console.log('done')
 			timer.cancel()
 			return 'Complete'
 		} else {
 			console.log('counter: ', counter)
 			counter = counter + 1
-			urls[counter - 1].call(function(result){console.log('result', result)})
+			urls[counter - 1].call(function(result) {console.log('result', result)})
 		}
 	})
 }

@@ -1,5 +1,5 @@
 // This action counts the total number of words in the topic column for the selected rows.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -8,9 +8,9 @@ var _ = function(){
 		
 		// List all visible text columns
 		var editor = document.editors[0]
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
@@ -19,10 +19,10 @@ var _ = function(){
 		}
 		
 		
-		var filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		var filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -52,15 +52,15 @@ var _ = function(){
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			
-			selection.items.forEach(function(item){
+			selection.items.forEach(function(item) {
 				var textObj = item.valueForColumn(selectedColumn)
 				if (textObj) {
 					wordcount = wordcount + textObj.words.length
@@ -71,7 +71,7 @@ var _ = function(){
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 		
@@ -81,7 +81,7 @@ var _ = function(){
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0){return true} else {return false}
+		if(selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;

@@ -1,6 +1,6 @@
 // This action imports the selected files, trying to put them into the correct rows by matching filenames with item contents.
 (() => {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		
@@ -16,10 +16,10 @@
 			throw new Error("This document has no text columns.")
 		}
 		
-		filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -42,7 +42,7 @@
 		} else if (filteredColumnTitles.indexOf('Attachments') !== -1) {
 			var index = filteredColumnTitles.indexOf('Attachments')
 			var defaultColumn = filteredColumns[index]
-		} else if (filteredColumns.includes(document.outline.outlineColumn)) {
+		} else if (filteredColumns.indexOf(document.outline.outlineColumn) !== -1) {
 			var defaultColumn = document.outline.outlineColumn
 		} else {
 			var defaultColumn = document.outline.noteColumn
@@ -79,12 +79,12 @@
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			var importURL = formObject.values["importURLOptionInput"]
 			var importUnmatched = formObject.values["importUnmatchedOptionInput"]
@@ -97,7 +97,7 @@
 			pickerPromise = picker.show()
 			
 			// PROMISE FUNCTION CALLED UPON PICKER APPROVAL
-			pickerPromise.then(function(urlsArray){
+			pickerPromise.then(function(urlsArray) {
 				urlsArray.forEach(url => {
 					// Match attachments into rows and get the matched item or null if no match
 					var matchedItem = matchItem(url, selectedColumn, importURL, importUnmatched)
@@ -105,7 +105,7 @@
 				})
 			})
 			// PROMISE FUNCTION CALLED UPON PICKER CANCELLATION
-			pickerPromise.catch(function(error){
+			pickerPromise.catch(function(error) {
 				console.log("form cancelled", error.message)
 			})
 			/*
@@ -121,7 +121,7 @@
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	});
@@ -185,7 +185,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 				})
 				
 			} else {
-				url.fetch(function(data){
+				url.fetch(function(data) {
 					var size = data.length
 					console.log(filename, size, 'bytes')
 					
@@ -205,7 +205,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 						var alertPromise = alert.show()
 						
 						alertPromise.then(buttonIndex => {
-							if (buttonIndex === 1){
+							if (buttonIndex === 1) {
 								console.log("Continue script")
 								var wrapper = FileWrapper.withContents(filename,data)
 								// Add new row at the bottom
@@ -238,7 +238,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 		var alertPromise = alert.show()
 		
 		alertPromise.then(buttonIndex => {
-			if (buttonIndex === 1){
+			if (buttonIndex === 1) {
 				console.log("Skip matching as instructed by user.")
 				
 				if (importUnmatched) {
@@ -250,7 +250,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 						})
 						
 					} else {
-						url.fetch(function(data){
+						url.fetch(function(data) {
 							var size = data.length
 							console.log(filename, size, 'bytes')
 							if (size > sizeLimit && (app.platformName === 'iOS' || app.platformName === 'iPadOS')) {
@@ -268,7 +268,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 								var alertPromise = alert.show()
 								
 								alertPromise.then(buttonIndex => {
-									if (buttonIndex === 1){
+									if (buttonIndex === 1) {
 										console.log("Continue script")
 										var wrapper = FileWrapper.withContents(filename,data)
 										// Add new row at the bottom
@@ -304,9 +304,9 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 	
 	function autoMatch() {
 		const editor = document.editors[0]
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
@@ -355,7 +355,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 							}
 							
 						} else {
-							url.fetch(function(data){
+							url.fetch(function(data) {
 								var size = data.length
 								console.log(filename, size, 'bytes')
 								if (size > sizeLimit && (app.platformName === 'iOS' || app.platformName === 'iPadOS')) {
@@ -373,7 +373,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 									var alertPromise = alert.show()
 									
 									alertPromise.then(buttonIndex => {
-										if (buttonIndex === 1){
+										if (buttonIndex === 1) {
 											console.log("Continue script")
 											var wrapper = FileWrapper.withContents(filename,data)
 											if (ogText !== null) {
@@ -423,7 +423,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 				})
 				
 			} else {
-				url.fetch(function(data){
+				url.fetch(function(data) {
 					var size = data.length
 					console.log(filename, size, 'bytes')
 					if (size > sizeLimit && (app.platformName === 'iOS' || app.platformName === 'iPadOS')) {
@@ -441,7 +441,7 @@ function matchItem(url, selectedColumn, importURL, importUnmatched) {
 						var alertPromise = alert.show()
 						
 						alertPromise.then(buttonIndex => {
-							if (buttonIndex === 1){
+							if (buttonIndex === 1) {
 								console.log("Continue script")
 								var wrapper = FileWrapper.withContents(filename,data)
 								// Add new row at the bottom

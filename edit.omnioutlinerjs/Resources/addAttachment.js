@@ -1,6 +1,6 @@
 // This action inserts texts at the end or start of the selected column of selected rows.
 (() => {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		
@@ -10,9 +10,9 @@
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		var filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		var filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
@@ -20,10 +20,10 @@
 			throw new Error("This document has no text columns.")
 		}
 		
-		filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -54,12 +54,12 @@
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			return null
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			var picker = new FilePicker()
 			picker.folders = false
@@ -69,7 +69,7 @@
 			pickerPromise = picker.show()
 			
 			// PROMISE FUNCTION CALLED UPON PICKER APPROVAL
-			pickerPromise.then(function(urlsArray){
+			pickerPromise.then(function(urlsArray) {
 				urlsArray.forEach(url => {
 					urlStr = url.string
 					// GET FILE NAME
@@ -90,7 +90,7 @@
 						filename = baseName + '.' + extension
 					}
 					// IMPORT FILES
-					url.fetch(function(data){
+					url.fetch(function(data) {
 						var size = data.length
 						console.log(filename, size, 'bytes')
 						if (size > sizeLimit && (app.platformName === 'iOS' || app.platformName === 'iPadOS')) {
@@ -108,7 +108,7 @@
 							var alertPromise = alert.show()
 							
 							alertPromise.then(buttonIndex => {
-								if (buttonIndex === 1){
+								if (buttonIndex === 1) {
 									console.log("Continue script")
 									var wrapper = FileWrapper.withContents(filename,data)
 									var ogText = selectedItem.valueForColumn(selectedColumn)
@@ -138,7 +138,7 @@
 			})
 
 			// PROMISE FUNCTION CALLED UPON PICKER CANCELLATION
-			pickerPromise.catch(function(error){
+			pickerPromise.catch(function(error) {
 				console.log("form cancelled", error.message)
 			})
 			
@@ -155,7 +155,7 @@
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	});

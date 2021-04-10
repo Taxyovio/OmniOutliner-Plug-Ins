@@ -1,15 +1,15 @@
 // This action inserts texts at the end or start of the selected column of selected rows.
 (() => {
-	var action = new PlugIn.Action(function(selection, sender){
+	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		var selectedItems = selection.items
 		
 		// List all visible text columns for insertion
 		editor = document.editors[0]
-		filteredColumns = columns.filter(function(column){
-			if (editor.visibilityOfColumn(column)){
-				if (column.type === Column.Type.Text){return column}
+		filteredColumns = columns.filter(function(column) {
+			if (editor.visibilityOfColumn(column)) {
+				if (column.type === Column.Type.Text) {return column}
 			}
 		})
 		
@@ -17,10 +17,10 @@
 			throw new Error("This document has no text columns.")
 		}
 		
-		filteredColumnTitles = filteredColumns.map(function(column){
-			if (column.title !== ''){
+		filteredColumnTitles = filteredColumns.map(function(column) {
+			if (column.title !== '') {
 				return column.title
-			} else if (column === document.outline.noteColumn){
+			} else if (column === document.outline.noteColumn) {
 			// The note column has empty title for unknown reason
 				return 'Notes'
 			}
@@ -87,7 +87,7 @@
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			var keys = formObject.fields.map(field => field.key)
 			
 			var textValue = formObject.values["textInput"]
@@ -119,7 +119,7 @@
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var insertStr = formObject.values["textInput"]
 			var selectedColumn = formObject.values["columnInput"]
 			var selectedPosition = formObject.values["insertionPositionInput"]
@@ -131,7 +131,7 @@
 				var colour = Color.RGB(floatArr[0], floatArr[1], floatArr[2], floatArr[3])
 			}
 			
-			selectedItems.forEach(function(item){
+			selectedItems.forEach(function(item) {
 				var targetText = item.valueForColumn(selectedColumn)
 				if (targetText) {
 					var textInsert = new Text(insertStr, targetText.style)
@@ -174,14 +174,14 @@
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
-		formPromise.catch(function(err){
+		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
 	});
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.nodes.length > 0){return true} else {return false}
+		if(selection.nodes.length > 0) {return true} else {return false}
 	};
 	
 	return action;

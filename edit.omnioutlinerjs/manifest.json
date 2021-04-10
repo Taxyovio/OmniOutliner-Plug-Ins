@@ -1,5 +1,7 @@
 {"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.taxyovio.edit","version":"2021.03.17","description":"A collection of Omni Automation scripts editing data in OmniOutliner.","actions":[
+	{"image":"icon.png","identifier":"copyColumn"},
 	{"image":"icon.png","identifier":"copyAsLink"},
+	{"image":"icon.png","identifier":"pasteArray"},
 	{"image":"icon.png","identifier":"findAndReplace"},
 	{"image":"icon.png","identifier":"addText"},
 	{"image":"icon.png","identifier":"addLink"},

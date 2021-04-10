@@ -1,5 +1,5 @@
 // This action creates a new text file in DEVONthink To Go from the selected row using URL schemes. Document name is passed as text title. Topic is passed as text body. Note is passed as comment. Item link is passed as URL.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -34,17 +34,17 @@ var _ = function(){
 		
 		// Creating urls
 		var urls = []
-		selection.items.forEach(function(item){
-			try {title = document.name} catch(err){title = ''}
-			try {text = item.topic} catch(err){text = ''}
-			try {comment = item.note} catch(err){comment = ''}
+		selection.items.forEach(function(item) {
+			try {title = document.name} catch(err) {title = ''}
+			try {text = item.topic} catch(err) {text = ''}
+			try {comment = item.note} catch(err) {comment = ''}
 			itemLink = 'omnioutliner:///open?row=' + item.identifier
 			itemLink = encodeURIComponent(itemLink)
 			title = encodeURIComponent(title)
-			if(text != ''){
+			if(text != '') {
 				text = encodeURIComponent(text)
 				urlStr = "x-devonthink://x-callback-url/createtext?title=" + title + "&text=" + text + "&location=" + itemLink
-				if (comment != ''){
+				if (comment != '') {
 					comment = encodeURIComponent(comment)
 					urlStr += "&comment=" + comment
 				}
@@ -63,7 +63,7 @@ var _ = function(){
 			var alertPromise = alert.show()
 			
 			alertPromise.then(buttonIndex => {
-				if (buttonIndex === 1){
+				if (buttonIndex === 1) {
 					console.log("Continue without delay")
 					repeatingCall(urls, 0)
 				} else {
@@ -83,7 +83,7 @@ var _ = function(){
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0){return true} else {return false}
+		if(selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;
@@ -98,23 +98,23 @@ function repeatingCall(urls, delay) {
 	
 	// In the Timer, all user defined objects get invalidated. 
 	// Usable objects: document, columns, rootItem, outlineColumn, noteColumn, statusColumn
-	Timer.repeating(delay, function(timer){
-		if (counter === repeats){
+	Timer.repeating(delay, function(timer) {
+		if (counter === repeats) {
 			console.log('done')
 			timer.cancel()
 			return 'Complete'
 		} else {
 			console.log('counter: ', counter)
 			counter = counter + 1
-			urls[counter - 1].call(function(result){
+			urls[counter - 1].call(function(result) {
 				console.log('result', JSON.stringify(result))
 				var urlStr = result.itemlink
 				var str = urlStr.replace(/x-devonthink-item:\/\//, '')
 				var url = URL.fromString(urlStr)
 				var item = document.editors[0].selection.items[counter - 1]
 				
-				var textColumns = columns.filter(function(column){
-					if (column.type === Column.Type.Text){return column}
+				var textColumns = columns.filter(function(column) {
+					if (column.type === Column.Type.Text) {return column}
 				})
 				
 				var urlColumn = columnByTitle(textColumns, 'DEVONthink ID')

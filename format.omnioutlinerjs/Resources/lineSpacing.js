@@ -1,5 +1,5 @@
 // This action sets the line spacing as a multiple of font size for the selected rows.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -28,7 +28,7 @@ var _ = function(){
 		formPromise = inputForm.show(formPrompt,"Continue")
 		
 		// VALIDATE THE USER INPUT
-		inputForm.validate = function(formObject){
+		inputForm.validate = function(formObject) {
 			var float = parseFloat(formObject.values["spacingInput"])
 			if (isNaN(float) || float < 0) {
 				throw new Error('Please enter a non-negative number.')
@@ -40,7 +40,7 @@ var _ = function(){
 		}
 	
 		// PROCESSING USING THE DATA EXTRACTED FROM THE FORM
-		formPromise.then(function(formObject){
+		formPromise.then(function(formObject) {
 			var relativeHight = formObject.values["spacingInput"]
 			items.forEach(item => {
 				item.style.set(Style.Attribute.ParagraphLineSpacing, fontSize * relativeHight)

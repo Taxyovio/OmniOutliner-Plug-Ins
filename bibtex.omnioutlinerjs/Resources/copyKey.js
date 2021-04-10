@@ -1,5 +1,5 @@
 // This action copies the entry key(s) for the selected row(s) into ~\cite{key1, key2, key3, ...}.
-var _ = function(){
+var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
@@ -14,7 +14,7 @@ var _ = function(){
 		}
 		
 		// All text columns titled 'EntryKey'
-		var keyColumns = document.outline.columns.filter(function(column){
+		var keyColumns = document.outline.columns.filter(function(column) {
 			if (column.type === Column.Type.Text && column.title === 'EntryKey') {return column}
 		})
 		// Take the first one as the source column
@@ -46,7 +46,7 @@ var _ = function(){
 		var alertPromise = alert.show()
 		
 		alertPromise.then(buttonIndex => {
-			if (buttonIndex === 1){
+			if (buttonIndex === 1) {
 				console.log("Continue script")
 				Pasteboard.general.string = str
 			} else {

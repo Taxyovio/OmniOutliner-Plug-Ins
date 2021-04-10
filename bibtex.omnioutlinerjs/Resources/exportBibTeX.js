@@ -1,6 +1,6 @@
 // This action exports a bib file from the selected rows or the whole document.
-var _ = function(){
-	var action = new PlugIn.Action(function(selection){
+var _ = function() {
+	var action = new PlugIn.Action(function(selection) {
 		var bibStr = exportBibTeX(selection.items)
 		var data = Data.fromString(bibStr)
 		var fileWrapper = FileWrapper.withContents(document.name + '.bib', data)
@@ -10,7 +10,7 @@ var _ = function(){
 	});
 
 	// routine determines if menu item is enabled
-	action.validate = function(selection){
+	action.validate = function(selection) {
 		if (selection.items.length !== 0) {return true} else {return false}
 	};
 
@@ -35,14 +35,14 @@ function exportBibTeX(items) {
 	}
 	
 	// List all text columns
-	var filteredColumns = document.outline.columns.filter(function(column){
-		if (column.type === Column.Type.Text){return column}
+	var filteredColumns = document.outline.columns.filter(function(column) {
+		if (column.type === Column.Type.Text) {return column}
 	})
 	
-	var filteredColumnTitles = filteredColumns.map(function(column){
-		if (column.title !== ''){
+	var filteredColumnTitles = filteredColumns.map(function(column) {
+		if (column.title !== '') {
 			return column.title
-		} else if (column === document.outline.noteColumn){
+		} else if (column === document.outline.noteColumn) {
 		// The note column has empty title
 			return 'Notes'
 		}
@@ -61,8 +61,8 @@ function exportBibTeX(items) {
 			str += '@' + entryTypeText.string.trim() + '{' + entryKeyText.string.trim() + ',\n'
 			
 			// Export other columns as fields 
-			var fieldColumns = filteredColumns.filter(function(column){
-				if (column !== filteredColumns[filteredColumnTitles.indexOf('EntryType')] && column !== filteredColumns[filteredColumnTitles.indexOf('EntryKey')]){return column}
+			var fieldColumns = filteredColumns.filter(function(column) {
+				if (column !== filteredColumns[filteredColumnTitles.indexOf('EntryType')] && column !== filteredColumns[filteredColumnTitles.indexOf('EntryKey')]) {return column}
 			})
 			
 			fieldColumns.forEach(column => {
