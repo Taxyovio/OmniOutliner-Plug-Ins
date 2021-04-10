@@ -4,6 +4,6 @@
 	{"image":"icon.png","identifier":"lineSpacing"},
 	{"image":"icon.png","identifier":"columnFormatter"},
 	{"image":"icon.png","identifier":"applyTitleCase"},
-	{"image":"icon.png","identifier":"splitColumn"},
+	{"image":"icon.png","identifier":"splitParagraph"},
 	{"image":"icon.png","identifier":"trimColumn"},
 ],"defaultLocale":"en"}
