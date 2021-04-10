@@ -1,11 +1,11 @@
 # OmniOutliner Plug-Ins
 ##  Introduction
-This is a collection of [Omni Automation](https://omni-automation.com) scripts for OmniOutliner, organised into 5 bundle plug-ins: 
+This is a collection of [Omni Automation](https://omni-automation.com) scripts for OmniOutliner, organised into 5 bundle plug-ins:
 
 - Edit
 - Format
 - View
-- Share 
+- Share
 - BibTeX
 
 The functionalities are mostly self-explainatory from filenames. The details of each action can be found below. They are designed for iPadOS but most should also work on MacOS. The single actions in `[old] Singles` folder are no longer maintained as they have been incorporated into bundles. 
@@ -18,21 +18,25 @@ For those who only want a few single actions, you can take a few simple steps to
 
 ```
 /*{
-	“type”: “action”,
-	“targets”: [“omnioutliner”],
-	“author”: “Taxyovio”,
-	“description”: “Script creates a new Things task from the selected outline item.”,
-	“label”: “Add to Things”,
-	“paletteLabel”: “Add to Things”
+	"type": "action",
+	"targets": ["omnioutliner"],
+	"author": "Taxyovio",
+	"description": "Script creates a new Things task from the selected outline item.",
+	"label": "Add to Things",
+	"paletteLabel": "Add to Things"
 }*/
 ```
 
 - Paste it at the first line of the renamed `*.js` file;
-- Change the values in the keys such as `label` and `paletteLabel` to appropriate ones.
+- Change the values in the keys such as `label` and `paletteLabel` to appropriate ones. 
 ##  Plug-Ins
 ###  Edit
 ####  Copy as Link
-This action copies the links for the selected rows, e.g. `omnioutliner:///open?row=fUpE2aoNbcL`.
+This action copies the links for the selected rows, e.g. `omnioutliner:///open?row=fUpE2aoNbcL`, with the option of copying as an array of links.
+####  Copy Column
+This action copies the contents of a selected column in the selected rows as plain texts, with the option of copying as an array of texts.
+####  Paste Array
+This action pastes the list of objects from clipboard into a selected text column for the selected rows, one in each cell, with the option to override existing contents in the cell. If there are more objects in the clipboard than selected rows, the list of clipboard objects is truncated to the number of selected rows, and vice versa. 
 ####  Find and Replace
 This action uses input RegEx to find or replace texts, either all at once, or cell by cell with manual confirmation.
 ####  Add Text
@@ -49,14 +53,14 @@ This action duplicates a selected column and its contents to a new column to the
 ####  Paste Style
 This action pastes the style of the selected row into selected targets, including all rows, children, descendants, leaves, parent, ancestors, and preceding/following (collateral) siblings. Each target option is a toggle so multiple selections are allowed.
 ####  Clear Style
-This action sets the style of the selected rows to the document base style.
+This action sets the style of the selected rows and all their texts to the document base style.
 ####  Line Spacing
 This action adjusts the base line spacing of the document, relative to base font size.
 ####  Column Formatter
 This action changes the column formatter for a selected column. It exposes all column formatting options for date, duration, and number columns, with options of any calendars, time zones, and currencies unavailable through native interface.
 ####  Apply Title Case
 This action sets the texts in a selected column from the selected rows to title case.
-####  Split Column
+####  Split Paragraph
 This action splits the selected rows according to the paragraphs in a selected column. It includes all descendants to the new rows.
 ####  Trim Column Title
 This action removes trailing white spaces in all column titles from both ends.
@@ -79,11 +83,11 @@ This action sends the selected rows into creating/updating tasks/projects in Thi
 ####  Add to DEVONthink
 This action sends the selected rows into creating new text documents in DEVONthink. It sends the document title as title, topic as body, notes as notes, and row link as URL.
 ####  Share Column
-This action presents the contents of a selected column of the selected rows in share sheet.
+This action presents the contents of a selected column of the selected rows in share sheet as plain texts, with the option of sharing as an array of texts.
 ####  Share Attachment
 This action presents the attachments in the selected rows in share sheet.
 ####  Share as Link
-This action presents the row links of the selected rows in share sheet.
+This action presents the row links of the selected rows in share sheet, e.g. `omnioutliner:///open?row=fUpE2aoNbcL`, with the option of sharing as an array of links.
 ####  Share as Markdown
 This action presents a `.md` file generated from the texts of a selected text column of the selected rows in share sheet. If there’re ‘#’ existing in the texts, it only counts those rows as header and automatically adds more ‘#’ depending on indent level. Otherwise it assumes all rows as headers and add ‘#’ to all of them depending on indent level.
 ###  BibTeX
