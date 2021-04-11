@@ -59,7 +59,7 @@
 		// Toggle if import urls or files
 		var importURLOptionField = new Form.Field.Checkbox(
 			"importURLOptionInput",
-			"Import URL",
+			"Import as URL",
 			false
 		)
 		
