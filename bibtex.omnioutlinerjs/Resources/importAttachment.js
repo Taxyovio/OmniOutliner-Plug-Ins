@@ -517,5 +517,5 @@ function urlScheme(urlStr, importAppURL) {
 		}
 	}
 	
-	return result
+	return result + ' '
 }

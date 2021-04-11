@@ -111,13 +111,13 @@
 					}
 					var space = new Text(' ', targetText.style)
 					if (selectedPosition === 'End') {
-						if (targetText.string) {
+						if (targetText.string && !targetText.string.slice(-1).match(/\s/)) {
 							targetText.append(space)
 						}
 						targetText.append(textInsert)
 						targetText.append(space)
 					} else if (selectedPosition === 'Start') {
-						if (targetText.string) {
+						if (targetText.string && !targetText.string.slice(0, 1).match(/\s/)) {
 							targetText.insert(targetText.start, space)
 						}
 						targetText.insert(targetText.start, textInsert)

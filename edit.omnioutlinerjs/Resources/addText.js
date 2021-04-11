@@ -136,27 +136,14 @@
 				if (targetText) {
 					var textInsert = new Text(insertStr, targetText.style)
 					if (fillColour) {textInsert.style.set(Style.Attribute.FontFillColor, colour)}
-					var space = new Text(' ', targetText.style)
 					if (selectedPosition === 'End') {
-						if (targetText.string !== '' && targetText.string.match(/\s+$/) === null) {
-							targetText.append(space)
-						}
-						
 						targetText.append(textInsert)
-						if (!/\s$/.test(insertStr)) {targetText.append(space)}
 					} else if (selectedPosition === 'Start') {
-						if (targetText.string !== '' && targetText.string.match(/^\s+/) === null) {
-							var space = new Text(' ', targetText.style)
-							targetText.insert(targetText.start, space)
-						}
 						targetText.insert(targetText.start, textInsert)
 					}
 				} else {
-					
-					var space = new Text(' ', item.style)
 					var textInsert = new Text(insertStr, item.style)
 					if (fillColour) {textInsert.style.set(Style.Attribute.FontFillColor, colour)}
-					if (!/\s$/.test(insertStr)) {textInsert.append(space)}
 					item.setValueForColumn(textInsert, selectedColumn)
 				}
 			})
