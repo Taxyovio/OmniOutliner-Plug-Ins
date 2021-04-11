@@ -156,7 +156,6 @@ var _ = function() {
 					item.setValueForColumn(newText, column)
 				} else {
 					if (ogText) {
-						console.log(newTextIsEmpty,ogText.string.slice(-1).match(/\s/))
 						if (!ogText.string.slice(-1).match(/\s/) && !newTextIsEmpty) {
 							var space = new Text(' ', style)
 							ogText.append(space)
