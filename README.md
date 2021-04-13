@@ -75,6 +75,8 @@ This action shows the count of words in a selected text column of the selected r
 This action shows the count of characters in a selected text column of the selected rows.
 ####  Column Statistics
 This action shows the basic statistics of a selected number or duration column of the selected rows, including sample size, sum, mean, standard deviation, maximum, minimum, and median.
+####  Render LaTeX
+This action presents in share sheet a base 64 encoded url of a html file to render LaTeX maths formulae to  svg or png using mathjax 3. The url needs be opened in a web browser either manually, or automated using Shortcuts, or Scriptable.
 ###  Share
 ####  Add to Anki
 This action sends the selected rows into creating new notes in Anki Mobile. It requires appropriate configuration for card types in Anki, with 3 custom card types defined with custom fields: {Basic: Front, Back, Reference, Reverse, Extra}, {Cloze: Text, Reference, Extra}, {Input: Front, Back, Reference, Extra}. It also requires corresponding columns being present in the current document. Otherwise it prompts to create a template document.

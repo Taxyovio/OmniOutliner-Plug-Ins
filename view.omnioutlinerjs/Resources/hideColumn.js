@@ -21,7 +21,13 @@
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		if(document) {return true} else {return false}
+		var visibleColumns = columns.filter(col => {
+			var visible = document.editors[0].visibilityOfColumn(col)
+			if (visible && col !== outlineColumn) {
+				return col
+			}
+		})
+		if (visibleColumns.length > 0) {return true} else {return false}
 	};
 	
 	return action;
@@ -29,7 +35,7 @@
 
 function hideAllColumns() {
 	var hidableColumns = columns.filter(col => {
-		return col !== outlineColumn && col !== noteColumn
+		return col !== outlineColumn
 	})
 	hidableColumns.forEach(col => {
 		document.editors[0].setVisibilityOfColumn(col, false)

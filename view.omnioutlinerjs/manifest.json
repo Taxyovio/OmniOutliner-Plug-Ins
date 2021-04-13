@@ -4,4 +4,5 @@
 	{"image":"icon.png","identifier":"wordCount"},
 	{"image":"icon.png","identifier":"characterCount"},
 	{"image":"icon.png","identifier":"columnStatistics"},
+	{"image":"icon.png","identifier":"texToPNG"},
 ],"defaultLocale":"en"}
