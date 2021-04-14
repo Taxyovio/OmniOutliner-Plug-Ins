@@ -44,7 +44,8 @@ This action inserts input text into a selected column of the selected rows at ei
 ####  Add Link
 This action inserts a hyperlink from the input text and URL, into a selected column of the selected rows at either the end or the beginning.
 ####  Add Attachment
-This action inserts attachments into a selected column of the selected row, picked from `Files.app`.
+This action inserts attachments into a selected column of the selected row, picked from `Files.app`. The attachments can be inserted as files or URLs.
+
 ####  Rename Attachment
 This action renames all attachments in the selected rows, allowing automatic renaming based on column texts, e.g. `{%Topic}-[{%Notes}]-({%Status})`. It allows renaming all at once or manually review and confirm for each attachment.
 ####  Duplicate Column
@@ -100,7 +101,7 @@ This action converts the texts in the ‘title’, ‘author’, ‘year’ colu
 ####  Unique Key
 This action changes duplicate texts in the ‘EntryKey’ column to ensure all cite keys are unique.
 ####  Import Attachment
-This action adds attachments either as files or URL links into a selected column picked from `Files.app`. It can automatically add the attachment into its corresponding row, by matching its filename with texts in visible columns. Optionally the failed matches can be added as new rows. If importing as URL is selected, it automatically converts files stored in GoodReader as GoodReader URLs.
+This action adds attachments either as files or URL links into a selected column picked from `Files.app`. It can automatically add the attachment into its corresponding row, by matching its filename with texts in visible columns. Optionally the failed matches can be added as new rows.
 ####  Import BibTeX
 This action imports a `.bib` file picked from `Files.app`, or appreciate texts from clipboard, into the current document. It creates a new column for each field if necessary. It only shows important columns to prevent performance issues when too many columns are visible. This action is made possible by the [bib2json](https://github.com/mayanklahiri/bib2json) project owned by Mayank Lahiri. 
 ####  Export BibTeX
