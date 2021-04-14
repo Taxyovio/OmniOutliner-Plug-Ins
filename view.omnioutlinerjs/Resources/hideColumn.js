@@ -21,13 +21,17 @@
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		var visibleColumns = columns.filter(col => {
-			var visible = document.editors[0].visibilityOfColumn(col)
-			if (visible && col !== outlineColumn) {
-				return col
-			}
-		})
-		if (visibleColumns.length > 0) {return true} else {return false}
+		if (typeof columns !== 'undefined') {
+			var visibleColumns = columns.filter(col => {
+				var visible = document.editors[0].visibilityOfColumn(col)
+				if (visible && col !== outlineColumn) {
+					return col
+				}
+			})
+			if (visibleColumns.length > 0) {return true} else {return false}
+		} else {
+			return false
+		}
 	};
 	
 	return action;
