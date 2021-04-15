@@ -9,7 +9,7 @@ var _ = function() {
 		
 		Pasteboard.general.items.forEach((obj, index) => {
 			var types = obj.types.filter(type => {
-				return (type.identifier !== 'com.omnigroup.omnioutliner.pboard.xmloutline.items') && (type.identifier !== 'com.omnigroup.omnioutliner.pboard.items-v3') && (type.identifier !== 'com.omnigroup.omnistyle.pboard.xml')
+				return (type.identifier !== 'com.omnigroup.omnioutliner.pboard.xmloutline.items') && (type.identifier !== 'com.omnigroup.omnioutliner.pboard.items-v3') && (type.identifier !== 'com.omnigroup.omnistyle.pboard.xml') && (type.identifier !== 'com.apple.DocumentManager.uti.FPItem.File')
 			})
 			
 			// Construct new text obj
@@ -61,7 +61,18 @@ var _ = function() {
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(Pasteboard.general.items.length > 0) {return true} else {return false}
+		if(Pasteboard.general.items.length > 0) {
+			var typeCount = 0
+			Pasteboard.general.items.forEach((obj, index) => {
+				var types = obj.types.filter(type => {
+					return (type.identifier !== 'com.omnigroup.omnioutliner.pboard.xmloutline.items') && (type.identifier !== 'com.omnigroup.omnioutliner.pboard.items-v3') && (type.identifier !== 'com.omnigroup.omnistyle.pboard.xml') && (type.identifier !== 'com.apple.DocumentManager.uti.FPItem.File')
+				})
+				typeCount += types.length
+			})
+			if (typeCount !== 0) {return true} else {return false}
+		} else {
+			return false
+		}
 	};
 	
 	return action;

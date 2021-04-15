@@ -43,7 +43,6 @@
 			var tex = formObject.values["textInput"]
 			var scale = parseFloat(formObject.values["scaleInput"])
 			if (typeof document !== 'undefined') {
-				
 				var height = Math.round(scale * parseFloat(document.outline.baseStyle.get(Style.Attribute.FontSize).toString()))
 			} else {
 				var height = 12
@@ -55,7 +54,6 @@
 			html += height
 			html += Data.fromBase64(botHTML64).toString()
 			var urlStr = "data:text\/html;base64," + Data.fromString(html).toBase64()
-			}
 			console.log(urlStr)
 			var url = URL.fromString(urlStr)
 			var sp = new SharePanel([url])

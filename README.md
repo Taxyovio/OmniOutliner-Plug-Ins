@@ -93,6 +93,8 @@ This action presents the attachments in the selected rows in share sheet.
 This action presents the row links of the selected rows in share sheet, e.g. `omnioutliner:///open?row=fUpE2aoNbcL`, with the option of sharing as an array of links.
 ####  Share as Markdown
 This action presents a `.md` file generated from the texts of a selected text column of the selected rows in share sheet. If there’re ‘#’ existing in the texts, it only counts those rows as header and automatically adds more ‘#’ depending on indent level. Otherwise it assumes all rows as headers and add ‘#’ to all of them depending on indent level.
+####  Share Clipboard
+This action presents the contents in clipboard in share sheet.
 ###  BibTeX
 ####  Copy Cite Key
 This action converts the texts in the ‘EntryKey’ column of the selected rows into LaTeX citation command `\cite`, and copies it into the clipboard when confirmed. 
