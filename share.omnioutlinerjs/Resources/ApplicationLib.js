@@ -58,6 +58,77 @@ var _ = function() {
 		})
 	}
 	
+	// text object to markdown
+	ApplicationLib.textToMD = function(textObj) {
+		
+		var str = ""
+		var runs = textObj.attributeRuns
+		var hasAttachment = !(textObj.attachments.length === 0)
+		
+		const imgExts = ["png", "jpeg", "jpg", "bmp", "tiff"]
+		
+		runs.forEach(text => {
+			if (text.style.link) {
+				// Check for hyperlink
+				var urlStr = text.style.link.string
+				
+				// Check for possible images
+				var filename = urlStr.substr(urlStr.lastIndexOf('/') + 1)
+				
+				if (filename) {
+					var baseName = filename.substring(0,filename.lastIndexOf('.'))
+					var extension = filename.substring(filename.lastIndexOf('.') + 1, filename.length)
+					// If there's no extension in the filename, the above codes assign the whole name to extension.
+					if (baseName === '') {
+						baseName = extension
+						extension = ''
+					}
+					
+					if (imgExts.indexOf(extension) !== -1) {
+						str += "![" + baseName + "](" + urlStr + ")"
+					} else {
+						
+						if (urlStr === text.string) {
+							str += "<" + urlStr + ">"
+						} else {
+							str += "[" + text.string + "](" + urlStr + ")"
+							
+						}
+					}
+				} else {
+					console.log("hi")
+					if (urlStr === text.string) {
+						str += "<" + urlStr + ">"
+					} else {
+						str += "[" + text.string + "](" + urlStr + ")"
+						
+					}
+				}
+				
+			} else if (text.fileWrapper) {
+				// Check for attachments and if they are images
+				var filename = text.fileWrapper.preferredFilename
+				var baseName = filename.substring(0,filename.lastIndexOf('.'))
+				var extension = filename.substring(filename.lastIndexOf('.') + 1, filename.length)
+				
+				// If there's no extension in the filename, the above codes assign the whole name to extension.
+				if (baseName === '') {
+					baseName = extension
+					extension = ''
+				}
+				
+				if (imgExts.indexOf(extension) !== -1) {
+					str += " ![" + baseName + "](" + filename + ") "
+				} else {
+					str += " <" + filename + "> "
+				}
+			} else {
+				str += text.string
+			}
+		})
+		console.log(textObj.string, "->\n", str)
+		return str
+	}
 	return ApplicationLib;
 }();
 _;

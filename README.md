@@ -10,7 +10,7 @@ This is a collection of [Omni Automation](https://omni-automation.com) scripts f
 
 The functionalities are mostly self-explainatory from filenames. The details of each action can be found below. They are designed for iPadOS but most should also work on MacOS. The single actions in `[old] Singles` folder are no longer maintained as they have been incorporated into bundles. 
 
-For those who only want a few single actions, you can take a few simple steps to convert the `*.js` files (except `importBibTeX.js` as it needs the `Parser.js` library) in the bundles into single actions: 
+For those who only want a few single actions, you can take a few simple steps to convert the `*.js` files in the bundles into single actions: 
 
 - Find the desired `*.js` file in the `/*.omnioutlinerjs/resources/` folder, and change the extension to omnijs;
 - Find a `*.omnijs` file in the `/[old] Singles/` folder;
@@ -28,7 +28,9 @@ For those who only want a few single actions, you can take a few simple steps to
 ```
 
 - Paste it at the first line of the renamed `*.js` file;
-- Change the values in the keys such as `label` and `paletteLabel` to appropriate ones. 
+- Change the values in the keys such as `label` and `paletteLabel` to appropriate ones.
+
+Note this doesn’t work for scripts that depend on libraries. These can be identified with the calling of `this.plugIn.library()`. 
 ##  Plug-Ins
 ###  Edit
 ####  Copy as Link

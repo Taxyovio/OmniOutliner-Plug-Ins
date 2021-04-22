@@ -3,6 +3,7 @@ var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
+		const Lib = this.plugIn.library('ApplicationLib')
 		// selection options: columns, document, editor, items, nodes, styles
 		
 		const editor = document.editors[0]
@@ -36,8 +37,8 @@ var _ = function() {
 		var urls = []
 		selection.items.forEach(function(item) {
 			try {title = document.name} catch(err) {title = ''}
-			try {text = item.topic} catch(err) {text = ''}
-			try {comment = item.note} catch(err) {comment = ''}
+			try {text = Lib.textToMD(item.valueForColumn(outlineColumn))} catch(err) {text = ''}
+			try {comment = Lib.textToMD(item.valueForColumn(noteColumn))} catch(err) {comment = ''}
 			itemLink = 'omnioutliner:///open?row=' + item.identifier
 			itemLink = encodeURIComponent(itemLink)
 			title = encodeURIComponent(title)

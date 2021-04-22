@@ -1,8 +1,8 @@
 // This action presents the texts from selected column from selected rows in Share Sheet.
 var _ = function() {
-	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
+		const Lib = this.plugIn.library('ApplicationLib')
 		// selection options: columns, document, editor, items, nodes, styles
 		var columnTitles = columns.map(function(column) {
 			if (column.title !== '') {
@@ -65,7 +65,7 @@ var _ = function() {
 				if (col.type === Column.Type.Text) {
 					// Value is a Text object
 					if (value) {
-						return value.string.trim()
+						return Lib.textToMD(value)
 					} else {
 						return '\n'
 					}

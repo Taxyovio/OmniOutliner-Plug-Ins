@@ -4,3 +4,4 @@
 • isEqualToCurVers(versStrToCheck) // checks whether the provided version string is equal to the current application version
 • isAtLeastCurVers(versStrToCheck) // checks whether the provided version string is at least the current application version
 • isAfterCurVers(versStrToCheck) // checks whether the provided version string comes after the current application version
+• textToMD(textObj) // converts the text object into markdown

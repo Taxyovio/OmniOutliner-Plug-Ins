@@ -2,6 +2,7 @@
 // If there's no header markup (#) in any rows of the document in the chosen column, then the export adds # according to level to every selected row. Otherwise, only rows with # are exported with # according to level, while others are exported as body texts.
 var _ = function() {
 	var action = new PlugIn.Action(function(selection, sender) {
+		const Lib = this.plugIn.library('ApplicationLib')
 		var selectedItems = selection.items
 		
 		// List all visible text columns
@@ -78,45 +79,29 @@ var _ = function() {
 				strings = []
 				selectedItems.forEach(function(item) {
 					var level = item.level
-					if (selectedColumn === document.outline.outlineColumn) {
-						strings.push('#'.repeat(level + 1) + " " + item.topic)
-					} else if (selectedColumn === document.outline.noteColumn) {
-						strings.push('#'.repeat(level + 1) + " " + item.note)
+					
+					if (item.valueForColumn(selectedColumn)) {
+						strings.push('#'.repeat(level + 1) + " " + Lib.textToMD(item.valueForColumn(selectedColumn)))
 					} else {
-						if (item.valueForColumn(selectedColumn)) {
-							strings.push('#'.repeat(level + 1) + " " + item.valueForColumn(selectedColumn).string)
-						} else {
-							strings.push('#'.repeat(level + 1) + " " + '-'.repeat(level + 1) )
-						}
+						strings.push('#'.repeat(level + 1) + " " + '-'.repeat(level + 1) )
 					}
+					
 				})
 			} else {
 				strings = []
 				selectedItems.forEach(function(item) {
 					var level = item.level
-					if (selectedColumn === document.outline.outlineColumn) {
-						if (/^#/.test(item.topic)) {
-							strings.push('#'.repeat(level + 1) + " " + item.topic.replace(/^#+/, ''))
+					
+					if (item.valueForColumn(selectedColumn)) {
+						if (/^#/.test(item.valueForColumn(selectedColumn).string)) {
+							strings.push('#'.repeat(level + 1) + " " + Lib.textToMD(item.valueForColumn(selectedColumn)).replace(/^#+/, ''))
 						} else {
-							strings.push(item.topic)
-						}
-					} else if (selectedColumn === document.outline.noteColumn) {
-						if (/^#/.test(item.note)) {
-							strings.push('#'.repeat(level + 1) + " " + item.note.replace(/^#+/, ''))
-						} else {
-							strings.push(item.note)
+							strings.push(Lib.textToMD(item.valueForColumn(selectedColumn)))
 						}
 					} else {
-						if (item.valueForColumn(selectedColumn)) {
-							if (/^#/.test(item.valueForColumn(selectedColumn).string)) {
-								strings.push('#'.repeat(level + 1) + " " + item.valueForColumn(selectedColumn).string.replace(/^#+/, ''))
-							} else {
-								strings.push(item.valueForColumn(selectedColumn).string)
-							}
-						} else {
-							strings.push('-'.repeat(level + 1))
-						}
+						strings.push('-'.repeat(level + 1))
 					}
+					
 				})
 			}
 			

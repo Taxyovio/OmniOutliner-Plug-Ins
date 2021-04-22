@@ -3,6 +3,7 @@ var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
+		const Lib = this.plugIn.library('ApplicationLib')
 		// selection options: columns, document, editor, items, nodes, styles
 		
 		var editor = document.editors[0]
@@ -366,10 +367,10 @@ var _ = function() {
 				// console.log('Things object: ', JSON.stringify(thing))
 				
 				var attributes = {}
-				try {attributes.title = item.valueForColumn(titleColumn).string.trim()} catch(err) {attributes.title = ''}
+				try {attributes.title = Lib.textToMD(item.valueForColumn(titleColumn)).trim()} catch(err) {attributes.title = ''}
 				try {
 					// Prepend OO item link in notes field in Things
-					attributes.notes = 'omnioutliner:///open?row=' + item.identifier + '\n\n' + item.valueForColumn(notesColumn).string.trim()
+					attributes.notes = 'omnioutliner:///open?row=' + item.identifier + '\n\n' + Lib.textToMD(item.valueForColumn(notesColumn)).trim()
 				} catch(err) {
 					attributes.notes = 'omnioutliner:///open?row=' + item.identifier
 				}
@@ -386,7 +387,7 @@ var _ = function() {
 						filteredChildren.forEach(child => {
 							var checklistItem = {'type':'checklist-item'}
 							var childLink = 'omnioutliner:///open?row=' + child.identifier
-							checklistItem.attributes = {'title':child.topic + ' ' + childLink}
+							checklistItem.attributes = {'title':Lib.textToMD(child.valueForColumn(titleColumn)).trim() + ' ' + childLink}
 							checklistItems.push(checklistItem)
 						})
 					} else {
@@ -394,7 +395,7 @@ var _ = function() {
 							var child = filteredChildren[i]
 							var checklistItem = {'type':'checklist-item'}
 							var childLink = 'omnioutliner:///open?row=' + child.identifier
-							checklistItem.attributes = {'title':child.topic + ' ' + childLink}
+							checklistItem.attributes = {'title':Lib.textToMD(child.valueForColumn(titleColumn)).trim() + ' ' + childLink}
 							checklistItems.push(checklistItem)
 						}
 					}
