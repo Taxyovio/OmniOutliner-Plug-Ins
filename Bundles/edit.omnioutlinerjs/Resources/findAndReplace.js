@@ -157,8 +157,10 @@ var _ = function() {
 			// Get all selected items and their descendants to search through
 			var items = []
 			selection.items.forEach(itm => {
-				items.push(itm)
-				items = items.concat(itm.descendants)
+				if (items.indexOf(itm) === -1) {
+					items.push(itm)
+					items = items.concat(itm.descendants)
+				}
 			})
 			
 			// Filter columns by selected titles
