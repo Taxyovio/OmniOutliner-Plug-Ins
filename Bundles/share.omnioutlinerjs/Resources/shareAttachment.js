@@ -33,8 +33,16 @@ var _ = function() {
 				}
 			})
 		})
-		sharePanel = new SharePanel(wrappers)		
-		sharePanel.show()
+		
+		if (wrappers.length > 0) {
+			sharePanel = new SharePanel(wrappers)		
+			sharePanel.show()
+		} else {
+			var alertTitle = "Error"
+			var alertMessage = "No attachment found."
+			var alert = new Alert(alertTitle, alertMessage)
+			var alertPromise = alert.show()
+		}
 	});
 
 	action.validate = function(selection, sender) {

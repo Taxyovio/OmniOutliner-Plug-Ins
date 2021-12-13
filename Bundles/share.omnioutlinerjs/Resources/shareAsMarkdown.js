@@ -81,9 +81,9 @@ var _ = function() {
 					var level = item.level
 					
 					if (item.valueForColumn(selectedColumn)) {
-						strings.push('#'.repeat(level + 1) + " " + Lib.textToMD(item.valueForColumn(selectedColumn)))
+						strings.push('#'.repeat(level) + " " + Lib.textToMD(item.valueForColumn(selectedColumn)).replace(/^\s*/, ''))
 					} else {
-						strings.push('#'.repeat(level + 1) + " " + '-'.repeat(level + 1) )
+						strings.push("")
 					}
 					
 				})
@@ -94,18 +94,17 @@ var _ = function() {
 					
 					if (item.valueForColumn(selectedColumn)) {
 						if (/^#/.test(item.valueForColumn(selectedColumn).string)) {
-							strings.push('#'.repeat(level + 1) + " " + Lib.textToMD(item.valueForColumn(selectedColumn)).replace(/^#+/, ''))
+							strings.push('#'.repeat(level) + " " + Lib.textToMD(item.valueForColumn(selectedColumn)).replace(/^#+\s*/, ''))
 						} else {
-							strings.push(Lib.textToMD(item.valueForColumn(selectedColumn)))
+							strings.push(Lib.textToMD(item.valueForColumn(selectedColumn)).replace(/^\s*/, ''))
 						}
 					} else {
-						strings.push('-'.repeat(level + 1))
+						strings.push("")
 					}
 					
 				})
 			}
 			
-			strings.unshift('# ' + document.name)
 			var data = Data.fromString(strings.join("\n"))
 			var fileWrapper = FileWrapper.withContents(document.name + '.md', data)
 			sharePanel = new SharePanel([fileWrapper])

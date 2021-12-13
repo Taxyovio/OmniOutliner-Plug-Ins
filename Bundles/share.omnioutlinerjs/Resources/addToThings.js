@@ -3,6 +3,7 @@ var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
+		try {
 		const Lib = this.plugIn.library('ApplicationLib')
 		// selection options: columns, document, editor, items, nodes, styles
 		
@@ -70,11 +71,6 @@ var _ = function() {
 			true
 		)
 		
-		var updateField = new Form.Field.Checkbox(
-			"updateInput",
-			"Update Existing Things",
-			true
-		)
 		
 		if (columns.byTitle('When') && columns.byTitle('When').type === Column.Type.Date) {
 			var defaultWhen = true
@@ -127,28 +123,40 @@ var _ = function() {
 			false
 		)
 		
-		// Authentication token field
+		var defaultUpdate = false
+		var defaultAuth = ''
+		// Authentication token field and update field
 		var authColumn = columns.byTitle('Authentication Token')
 		if (authColumn && authColumn.type === Column.Type.Text) {
-			var textObj = rootItem.children[0].valueForColumn(authColumn)
-			if (textObj && textObj.string !== '') {
-				str = textObj.string
-				if (!/\W/.test(str)) {
-					var defaultAuth = str
-				} else {
-					var defaultAuth = ''
+			defaultUpdate = true
+			
+			for (var i = 0; i < rootItem.descendants.length; i++) {
+				var textObj = rootItem.descendants[i].valueForColumn(authColumn)
+				if (textObj && textObj.string !== '') {
+					str = textObj.string
+					if (!/\W/.test(str)) {
+						defaultAuth = str
+					}
+					break
+				}
+				
+				if (i > 1000) {
+					break
 				}
 			}
+			
 		} else if (Pasteboard.general.hasStrings) {
 			var str = Pasteboard.general.string
 			if (!/\W/.test(str)) {
 				var defaultAuth = str
-			} else {
-				var defaultAuth = ''
 			}
-		} else {
-			var defaultAuth = ''
 		}
+		
+		var updateField = new Form.Field.Checkbox(
+			"updateInput",
+			"Update Existing Things",
+			defaultUpdate
+		)
 		
 		var authField = function (str) {
 			return new Form.Field.String(
@@ -164,6 +172,7 @@ var _ = function() {
 		inputForm.addField(checklistField(defaultChecklist))
 		
 		inputForm.addField(whenField)
+		if (defaultWhen === true) {inputForm.addField(reminderField(defaultReminder))}
 		inputForm.addField(deadlineField)
 		inputForm.addField(tagsField)
 		
@@ -171,7 +180,7 @@ var _ = function() {
 		inputForm.addField(linkBackField)
 		
 		inputForm.addField(updateField)
-		inputForm.addField(authField(defaultAuth))
+		if (defaultUpdate === true) {inputForm.addField(authField(defaultAuth))}
 		
 		// PRESENT THE FORM TO THE USER
 		formPrompt = "Add to Things"
@@ -243,7 +252,7 @@ var _ = function() {
 			console.log('Adding columns')
 			// Create new columns if missing
 			if (includesWhen) {
-				if (!columns.byTitle('When')|| columns.byTitle('When').type !== Column.Type.Date) {
+				if (!columns.byTitle('When') || columns.byTitle('When').type !== Column.Type.Date) {
 					includesWhen = false
 					includesReminder = false
 					var alertTitle = "Confirmation"
@@ -335,7 +344,7 @@ var _ = function() {
 			
 			
 			items.forEach((item, index) => {
-				// console.log('Things object is being created ', index + 1, ' out of ', items.length)
+				console.log('Things object is being created ', index + 1, ' out of ', items.length)
 				/* An object of Things
 				{
 					"type": "to-do",
@@ -348,12 +357,12 @@ var _ = function() {
 				*/
 				var thing = {}
 				if (asProject) {thing.type = 'project'} else {thing.type = 'to-do'}
-				// console.log('Things object : ', JSON.stringify(thing))
+				console.log('Things object : ', JSON.stringify(thing))
 				var urlColumn = columnByTitle(filteredColumns, 'Things ID')
 				if (urlColumn && item.valueForColumn(urlColumn) && item.valueForColumn(urlColumn).string.trim().length !== 0) {
-					thing.id = reverse(reverse(item.valueForColumn(urlColumn).string.trim()).match(/^\w*(?==di\?wohs\/\/\/:sgniht$)/)[0])
+					thing.id = item.valueForColumn(urlColumn).string.trim()
 				}
-				// console.log('Things object : ', JSON.stringify(thing))
+				console.log('Things object : ', JSON.stringify(thing))
 				if (updateExisting) {
 					if (thing.id) {
 						thing.operation = 'update'
@@ -364,7 +373,7 @@ var _ = function() {
 					thing.operation = 'create'
 				}
 				
-				// console.log('Things object: ', JSON.stringify(thing))
+				console.log('Things object: ', JSON.stringify(thing))
 				
 				var attributes = {}
 				try {attributes.title = Lib.textToMD(item.valueForColumn(titleColumn)).trim()} catch(err) {attributes.title = ''}
@@ -507,7 +516,9 @@ var _ = function() {
 		formPromise.catch(function(err) {
 			console.log("form cancelled", err.message)
 		})
-		
+		} catch (error) {
+			console.log(error)
+		}
 	});
 
 	action.validate = function(selection, sender) {

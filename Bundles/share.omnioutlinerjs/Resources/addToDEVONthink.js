@@ -75,7 +75,35 @@ var _ = function() {
 		
 		} else {
 			console.log("Continue without delay")
-			repeatingCall(urls, 0)
+			if (urls.length == 1) {
+				urls[0].call(function(result) {
+					console.log('result', JSON.stringify(result))
+					var urlStr = result.itemlink
+					var str = urlStr.replace(/x-devonthink-item:\/\//, '')
+					var url = URL.fromString(urlStr)
+					var item = document.editors[0].selection.items[0]
+					
+					var textColumns = columns.filter(function(column) {
+						if (column.type === Column.Type.Text) {return column}
+					})
+					
+					var urlColumn = columnByTitle(textColumns, 'DEVONthink ID')
+					
+					var textObj = item.valueForColumn(urlColumn)
+					if (textObj) {
+						textObj = new Text(str, textObj.style)
+						textObj.style.set(Style.Attribute.Link, url)
+						item.setValueForColumn(textObj, urlColumn)
+					} else {
+						textObj = new Text(str, item.style)
+						textObj.style.set(Style.Attribute.Link, url)
+						item.setValueForColumn(textObj, urlColumn)
+					}
+					
+				})
+			} else {
+				repeatingCall(urls, 0)
+			}
 		}
 			
 		
