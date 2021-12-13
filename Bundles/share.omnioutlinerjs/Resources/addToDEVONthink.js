@@ -127,41 +127,52 @@ function repeatingCall(urls, delay) {
 	
 	// In the Timer, all user defined objects get invalidated. 
 	// Usable objects: document, columns, rootItem, outlineColumn, noteColumn, statusColumn
-	Timer.repeating(delay, function(timer) {
-		if (counter === repeats) {
-			console.log('done')
-			timer.cancel()
-			return 'Complete'
-		} else {
-			console.log('counter: ', counter)
-			counter = counter + 1
-			urls[counter - 1].call(function(result) {
-				console.log('result', JSON.stringify(result))
-				var urlStr = result.itemlink
-				var str = urlStr.replace(/x-devonthink-item:\/\//, '')
-				var url = URL.fromString(urlStr)
-				var item = document.editors[0].selection.items[counter - 1]
+	function callBack() {
+		urls[counter].call(function(result) {
+			console.log('result', JSON.stringify(result))
+			var urlStr = result.itemlink
+			var str = urlStr.replace(/x-devonthink-item:\/\//, '')
+			var url = URL.fromString(urlStr)
+			var item = document.editors[0].selection.items[counter-1]
+			
+			var textColumns = columns.filter(function(column) {
+				if (column.type === Column.Type.Text) {return column}
+			})
+			
+			var urlColumn = columnByTitle(textColumns, 'DEVONthink ID')
+			
+			var textObj = item.valueForColumn(urlColumn)
+			if (textObj) {
+				textObj = new Text(str, textObj.style)
+				textObj.style.set(Style.Attribute.Link, url)
+				item.setValueForColumn(textObj, urlColumn)
+			} else {
+				textObj = new Text(str, item.style)
+				textObj.style.set(Style.Attribute.Link, url)
+				item.setValueForColumn(textObj, urlColumn)
+			}
 				
-				var textColumns = columns.filter(function(column) {
-					if (column.type === Column.Type.Text) {return column}
-				})
-				
-				var urlColumn = columnByTitle(textColumns, 'DEVONthink ID')
-				
-				var textObj = item.valueForColumn(urlColumn)
-				if (textObj) {
-					textObj = new Text(str, textObj.style)
-					textObj.style.set(Style.Attribute.Link, url)
-					item.setValueForColumn(textObj, urlColumn)
-				} else {
-					textObj = new Text(str, item.style)
-					textObj.style.set(Style.Attribute.Link, url)
-					item.setValueForColumn(textObj, urlColumn)
-				}
-					
+		})	
+	}
+	
+	
+	// Timer.repeating is bugged and causing crashes when cencelling. Write my own repeating timer as a workaround.
+	function repeatingTimer(interval, func) {
+		console.log('counter', counter)
+		func()
+		counter = counter + 1
+		if (counter < repeats) {
+			Timer.once(interval, function(timer) {
+				repeatingTimer(interval, func)
 			})
 		}
-	})
+	}
+	
+	repeatingTimer(2, callBack)
+	
+	
+	
+	
 }
 
 function columnByTitle(columnArray, title) {
@@ -171,3 +182,5 @@ function columnByTitle(columnArray, title) {
 		}
 	}
 }
+
+
