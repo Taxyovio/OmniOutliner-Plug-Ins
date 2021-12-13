@@ -168,7 +168,7 @@ function repeatingCall(urls, delay) {
 		}
 	}
 	
-	repeatingTimer(2, callBack)
+	repeatingTimer(delay, callBack)
 	
 	
 	
