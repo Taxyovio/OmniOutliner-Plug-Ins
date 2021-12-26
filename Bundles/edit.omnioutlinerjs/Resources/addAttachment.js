@@ -54,15 +54,6 @@
 			false
 		)
 		
-		// Toggle if import url schemes for specific apps
-		var defaultimportAppURLOption = false
-		var importAppURLOptionField = function (bool) {
-			return new Form.Field.Checkbox(
-				"importAppURLOptionInput",
-				"Add App URL",
-				bool
-			)
-		}
 		
 		// ADD THE FIELDS TO THE FORM
 		inputForm.addField(columnField)
@@ -73,17 +64,6 @@
 		
 		// VALIDATE THE USER INPUT
 		inputForm.validate = function(formObject) {
-			var keys = formObject.fields.map(field => field.key)
-			if (formObject.values["importURLOptionInput"] === true) {
-				if (keys.indexOf('importAppURLOptionInput') === -1) {
-					formObject.addField(importAppURLOptionField(defaultimportAppURLOption))
-				}
-			} else {
-				if (keys.indexOf('importAppURLOptionInput') !== -1) {
-					defaultimportAppURLOption = formObject.values["importAppURLOptionInput"]
-					formObject.removeField(formObject.fields[keys.indexOf('importAppURLOptionInput')])
-				}
-			}
 			return null
 		}
 	
@@ -91,9 +71,6 @@
 		formPromise.then(function(formObject) {
 			var selectedColumn = formObject.values["columnInput"]
 			var importURL = formObject.values["importURLOptionInput"]
-			if (importURL) {
-				var importAppURL = formObject.values["importAppURLOptionInput"]
-			}
 			
 			
 			var picker = new FilePicker()
@@ -111,14 +88,14 @@
 					
 					if (importURL) {
 						if (ogText) {
-							var textObj = new Text(urlScheme(urlStr, importAppURL), ogText.style)
+							var textObj = new Text(urlScheme(urlStr), ogText.style)
 							if (!ogText.string.slice(-1).match(/\s/)) {
 								var space = new Text(' ', ogText.style)
 								ogText.append(space)
 								ogText.append(textObj)
 							}
 						} else {
-							var textObj = new Text(urlScheme(urlStr, importAppURL), selectedItem.style)
+							var textObj = new Text(urlScheme(urlStr), selectedItem.style)
 							selectedItem.setValueForColumn(textObj, selectedColumn)
 						}
 						
@@ -173,7 +150,7 @@
 												ogText.append(textObj)
 											}
 										} else {
-											var textObj = new Text(urlScheme(urlStr, importAppURL), selectedItem.style)
+											var textObj = new Text(urlScheme(urlStr), selectedItem.style)
 											selectedItem.setValueForColumn(textObj, selectedColumn)
 										}
 									} else if (buttonIndex === 2) {
@@ -236,7 +213,7 @@
 })();
 
 
-function urlScheme(urlStr, importAppURL) {
+function urlScheme(urlStr) {
 	var result = urlStr
 	
 	if (app.platformName === 'iOS' || app.platformName === 'iPadOS') {
@@ -245,19 +222,6 @@ function urlScheme(urlStr, importAppURL) {
 		var filesURL = urlStr.replace(/^file\:\/\/\//, 'shareddocuments:\/\/\/')
 		result = filesURL
 		
-		if (importAppURL) {
-			// Add url schemes to files stored in specific apps
-			const uuidGoodReader = '6D808056-1B96-4C2B-94BF-5C5244474FBD'
-			
-			if (urlStr.includes(uuidGoodReader)) {
-				var regex = new RegExp(uuidGoodReader + '/Documents/.*', '')
-				var matchedStr = urlStr.match(regex)[0]
-				var str = matchedStr.substring(uuidGoodReader.length + '/Documents/'.length, matchedStr.length)
-				str = '0/' + decodeURIComponent(str)
-				console.log('GoodReader', urlStr, '->', str)
-				result += ' gropen://' + encodeURIComponent(str) + '?cc=1'
-			}
-		}
 	}
 	
 	return result + ' '
