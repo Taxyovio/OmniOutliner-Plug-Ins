@@ -37,8 +37,8 @@ Note this doesn’t work for scripts that depend on libraries. These can be iden
 This action copies the links for the selected rows, e.g. `omnioutliner:///open?row=fUpE2aoNbcL`, with the option of copying as an array of links.
 ####  Copy Column
 This action copies the contents of a selected column in the selected rows as plain texts, with the option of copying as an array of texts.
-####  Paste Array
-This action pastes the list of objects from clipboard into a selected text column for the selected rows, one in each cell, with the option to override existing contents in the cell. If there are more objects in the clipboard than selected rows, the list of clipboard objects is truncated to the number of selected rows, and vice versa. 
+####  Paste Column
+This action pastes the list of objects from clipboard into a selected column for the selected rows, one in each cell, with the option to override existing contents in the cell. If there are more objects in the clipboard than selected rows, the list of clipboard objects is truncated to the number of selected rows, and vice versa. 
 ####  Find and Replace
 This action uses input RegEx to find or replace texts, either all at once, or cell by cell with manual confirmation.
 ####  Add Text

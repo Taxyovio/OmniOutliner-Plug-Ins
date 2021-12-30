@@ -1,0 +1,4 @@
+"label" = "Paste Column";
+"shortLabel" = "Paste Column";
+"mediumLabel" = "Paste Column";
+"LongLabel" = "Paste array into selected colomn of selected rows";

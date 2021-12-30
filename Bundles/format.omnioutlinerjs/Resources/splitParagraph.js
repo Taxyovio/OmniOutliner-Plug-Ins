@@ -1,4 +1,4 @@
-// This action splits the texts in the selected column according to paragraphs for the selected rows. Note that the selected nodd will be turned into the last paragraoh.
+// This action splits the texts in the selected column according to paragraphs for the selected rows. Note that the selected node will be turned into the last paragraoh.
 var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {

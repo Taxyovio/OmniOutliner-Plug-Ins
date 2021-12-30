@@ -24,7 +24,7 @@ var _ = function() {
 		editor = document.editors[0]
 		filteredColumns = columns.filter(function(column) {
 			if (editor.visibilityOfColumn(column)) {
-				if (column.type === Column.Type.Text) {return column}
+				return column
 			}
 		})
 		
@@ -88,10 +88,10 @@ var _ = function() {
 			array.forEach((obj, index) => {
 				var item = items[index]
 				
-				var ogText = item.valueForColumn(column)
+				var ogValue = item.valueForColumn(column)
 				
-				if (ogText) {
-					var style = ogText.style
+				if (ogValue && column.type === Column.Type.Text) {
+					var style = ogValue.style
 				} else {
 					var style = item.style
 				}
@@ -108,7 +108,7 @@ var _ = function() {
 					console.log('clipboard object ', index + 1, '/', length, 'is of type', types)
 					
 					var textTypes = types.filter(type => {
-						return (type.conformsTo(TypeIdentifier.plainText)) || (type.identifier === 'public.utf8-plain-text') || (type === TypeIdentifier.URL)
+						return (type.conformsTo(TypeIdentifier.plainText)) || (type.identifier === 'public.utf8-plain-text') || type.identifier === 'public.rtf' || (type === TypeIdentifier.URL)
 					})
 					
 					if (textTypes.length !== 0) {
@@ -129,10 +129,11 @@ var _ = function() {
 					}
 					
 					var nonTextTypes = types.filter(type => {
-						return (!type.conformsTo(TypeIdentifier.plainText)) && (type.identifier !== 'public.utf8-plain-text') && (type.identifier !== 'public.url')
+						return (!type.conformsTo(TypeIdentifier.plainText)) && (type.identifier !== 'public.utf8-plain-text') && type.identifier !== 'public.rtf' && (type.identifier !== 'public.url')
 					})
 					
 					if (nonTextTypes.length !== 0) {
+						
 						nonTextTypes.forEach((type, i) => {
 							var fileExtension = type.pathExtensions[0]
 							if (fileExtension) {
@@ -147,23 +148,73 @@ var _ = function() {
 						})
 					}
 					
+					
 				} else {
 					console.log('clipboard object ', index + 1, '/', length, 'has no valid type')
 				}
 				
 				// Modify items
-				if (override) {
-					item.setValueForColumn(newText, column)
-				} else {
-					if (ogText) {
-						if (!ogText.string.slice(-1).match(/\s/) && !newTextIsEmpty) {
-							var space = new Text(' ', style)
-							ogText.append(space)
-						}
-						ogText.append(newText)
-					} else {
+				if (column.type === Column.Type.Text) {
+					
+					if (override) {
 						item.setValueForColumn(newText, column)
+					} else {
+						if (ogValue) {
+							if (!ogValue.string.slice(-1).match(/\s/) && !newTextIsEmpty) {
+								var space = new Text(' ', style)
+								ogValue.append(space)
+							}
+							ogValue.append(newText)
+						} else {
+							item.setValueForColumn(newText, column)
+						}
 					}
+				} else if (column.type === Column.Type.Date) {
+					var newDate = new Date(newText.string)
+					if (isValidDate(newDate)) {
+						if (override) {
+							item.setValueForColumn(newDate, column)
+						} else if (!ogValue) {
+							item.setValueForColumn(newDate, column)
+						}
+					} else if (override) {
+						item.setValueForColumn(null, column)
+					}
+					
+				} else if (column.type === Column.Type.Number || column.type === Column.Type.Duration) {
+					var newNumber = Number(newText.string)
+					if (!isNaN(newNumber)) {
+						if (override) {
+							item.setValueForColumn(newNumber, column)
+						} else if (!ogValue) {
+							item.setValueForColumn(newNumber, column)
+						}
+					} else if (override) {
+						item.setValueForColumn(null, column)
+					}
+				} else if (column.type === Column.Type.Enumeration) {
+					var enumeration = column.enumeration
+					
+					if (!enumeration.memberNamed(newText.string) && newText.string && override) {
+							enumeration.add(newText.string)
+					}
+					item.setValueForColumn(enumeration.memberNamed(newText.string), column)
+					
+				} else if (column.type === Column.Type.Checkbox) {
+					if (override) {
+						if (ciEquals(newText.string, "Checked")) {
+							item.setValueForColumn(State.Checked, column)
+						} else if (ciEquals(newText.string, "Unchecked")) {
+							item.setValueForColumn(State.Unchecked, column)
+						}
+					} else {
+						// If no overriding, only checking unchecked boxes are allowed.
+						if (ciEquals(newText.string, "Checked")) {
+							item.setValueForColumn(State.Checked, column)
+						}
+					
+					}
+					
 				}
 			
 			})
@@ -184,3 +235,15 @@ var _ = function() {
 	return action;
 }();
 _;
+
+// https://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
+function isValidDate(d) {
+	return d instanceof Date && !isNaN(d);
+}
+
+// https://stackoverflow.com/questions/2140627/how-to-do-case-insensitive-string-comparison
+function ciEquals(a, b) {
+	return typeof a === 'string' && typeof b === 'string'
+		? a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
+		: a === b;
+}
