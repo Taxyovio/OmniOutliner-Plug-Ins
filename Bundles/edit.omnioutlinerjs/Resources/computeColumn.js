@@ -247,9 +247,6 @@ var _ = function() {
 					throw new Error('Dates C0 and C1 must appear in pairs.')
 				}
 				
-				if (formulaInput.replace(/(C0|C1|-|\s)/gi, "").length !== 0) {
-					throw new Error('Dates C0 and C1 must be substracted.')
-				}
 			}
 			
 			// Valid date formula with fake data
@@ -353,13 +350,18 @@ function compute(formula, row, columns, target) {
 	})
 	
 	// Null result if formula doesn't pass
-	try {result = eval(formula)} catch(err) {result = null}
+	try {
+		result = eval(formula)
+	} catch(err) {
+		console.log(err)
+		result = null
+	}
 	
 	if (target.type === Column.Type.Date) {
 		// C0 must be a date
 		c[0] = c[0] / 3600000 // ms -> h
 		
-		if (result || result === 0) {
+		if ((result !== null && result !== undefined) || result === 0) {
 			result = new Date(eval(formula) * 3600000)
 		} else {
 			result = null
