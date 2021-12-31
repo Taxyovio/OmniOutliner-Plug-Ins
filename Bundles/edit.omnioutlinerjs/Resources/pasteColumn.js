@@ -29,7 +29,7 @@ var _ = function() {
 		})
 		
 		if (filteredColumns.length === 0) {
-			throw new Error("This document has no visible text columns.")
+			throw new Error("This document has no visible columns.")
 		}
 		
 		filteredColumnTitles = filteredColumns.map(function(column) {
@@ -65,7 +65,7 @@ var _ = function() {
 		var overrideToggle = new Form.Field.Checkbox(
 			"overrideInput",
 			"Override",
-			false
+			true
 		)
 		
 		// ADD THE FIELDS TO THE FORM
@@ -229,7 +229,7 @@ var _ = function() {
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0) {return true} else {return false}
+		if (selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;

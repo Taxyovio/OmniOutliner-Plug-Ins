@@ -1,0 +1,4 @@
+"label" = "Compute Column";
+"shortLabel" = "Compute Column";
+"mediumLabel" = "Compute Column";
+"LongLabel" = "Fill a selected column with computed values";

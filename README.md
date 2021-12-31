@@ -39,6 +39,8 @@ This action copies the links for the selected rows, e.g. `omnioutliner:///open?r
 This action copies the contents of a selected column in the selected rows as plain texts, with the option of copying as an array of texts.
 ####  Paste Column
 This action pastes the list of objects from clipboard into a selected column for the selected rows, one in each cell, with the option to override existing contents in the cell. If there are more objects in the clipboard than selected rows, the list of clipboard objects is truncated to the number of selected rows, and vice versa. 
+####  Compute Column
+This action takes inputs from selected columns and outputs the computed results into the selected target column, processing on a row by row basis. The formula field allows for any valid JavaScript expression that passes through `eval()`.
 ####  Find and Replace
 This action uses input RegEx to find or replace texts, either all at once, or cell by cell with manual confirmation.
 ####  Add Text
