@@ -136,16 +136,9 @@
 				}
 			})
 			
-			/*
 			// Work around a bug that crops images by forcing UI to update
-			var ogAlignment = selectedColumn.textAlignment
-			if (ogAlignment === TextAlignment.Natural) {
-				selectedColumn.textAlignment = TextAlignment.Left
-			} else {
-				selectedColumn.textAlignment = TextAlignment.Natural
-			}
-			selectedColumn.textAlignment = ogAlignment
-			*/
+			editor.setVisibilityForColumn(selectedColumn, false)
+			editor.setVisibilityForColumn(selectedColumn, true)
 		})
 		
 		// PROMISE FUNCTION CALLED UPON FORM CANCELLATION

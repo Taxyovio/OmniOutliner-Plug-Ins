@@ -287,6 +287,16 @@
 					if (hoursPerWeek !== ogHoursPerWeek) {
 						selectedColumn.formatter.hoursPerWeek = hoursPerWeek
 					}
+					
+					// Force column to update
+					var ogSummary = editor.summaryForColumn(selectedColumn)
+					if (ogSummary !== null) {
+						editor.setSummaryForColumn(selectedColumn, null)
+					} else {
+						editor.setSummaryForColumn(selectedColumn, Column.Summary.Hidden)
+					}
+					editor.setSummaryForColumn(selectedColumn, ogSummary)
+					
 				})
 				
 				// PROMISE FUNCTION CALLED UPON FORM CANCELLATION
