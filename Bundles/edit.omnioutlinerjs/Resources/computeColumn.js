@@ -1,5 +1,4 @@
-// This action pastes the array of objects from Clipboard into the selected column of the selected rows.
-// The clipboard item list and row list are truncated to the length of the shorter one.
+// This action computes the entered formula with eval() from values of selected columns, and outputs the results into the selected target column.
 var _ = function() {
 	
 	var action = new PlugIn.Action(function(selection, sender) {
@@ -63,7 +62,6 @@ var _ = function() {
 			)
 		}
 		
-		// TODO: Multi-option if number or checkboxes
 		// Define a dynamic field to add and remove during validation
 		var columnField = function(columns, index, col) {
 			return new Form.Field.Option(
@@ -84,67 +82,20 @@ var _ = function() {
 			
 			var columns = columns.filter(function(column) {
 				
-				if (targetColumn.type === Column.Type.Duration) {
+				if (targetColumn.type === Column.Type.Date || targetColumn.type === Column.Type.Duration) {
 					// Allow only date and duration inputs
-					
-					if (column !== targetColumn && (column.type === Column.Type.Duration || column.type === Column.Type.Date)) {
-					
-						if (selectedInputColumns.length === 0) {
-							return column
-							
-						} else if (selectedInputColumns.length === 1) {
-						
-							// Only two dates are allowed
-							if (selectedInputColumns[0].type === Column.Type.Date && column.type === Column.Type.Date) {
-								return column
-								
-							} else if (selectedInputColumns[0].type === Column.Type.Duration && column.type === Column.Type.Duration) {
-								return column
-							}
-							
-						} else if (selectedInputColumns.length === 2) {
-							
-							if (selectedInputColumns[0].type === Column.Type.Duration && column.type === Column.Type.Duration) {
-								return column
-							}
-							
-						} else {
-							
-							if (selectedInputColumns[0].type === Column.Type.Duration && column.type === Column.Type.Duration) {
-								return column
-							}
-						
-						}
-						
-					}
-					
-				} else if (targetColumn.type === Column.Type.Date) {
-					// Allow only date and duration inputs
-					
-					if (column !== targetColumn && (column.type === Column.Type.Duration || column.type === Column.Type.Date)) {
-					
-						if (selectedInputColumns.length === 0) {
-							// First option must be a date
-							if (column.type === Column.Type.Date) {return column}
-							
-						} else {
-							
-							if (column.type === Column.Type.Duration) {
-								return column
-							}
-						
-						}
-						
+					if (column.type === Column.Type.Duration || column.type === Column.Type.Date) {
+						return column
 					}
 				
 				} else if (targetColumn.type === Column.Type.Number) {
 					// Allow only number inputs
-					if (column !== targetColumn && column.type === Column.Type.Number) {
+					if (column.type === Column.Type.Number) {
 						return column
 					}
 				} else if (targetColumn.type === Column.Type.Checkbox) {
 					// Allow only number inputs
-					if (column !== targetColumn && column.type === Column.Type.Checkbox) {
+					if (column.type === Column.Type.Checkbox) {
 						return column
 					}
 				}
@@ -211,9 +162,6 @@ var _ = function() {
 					let regex = new RegExp("C" + (inputLength - 1), 'gi')
 					if (!formulaInput.match(regex)) {
 						if (formulaInput) {
-							if (selectedInputColumns.length === 1 && selectedTargetColumn.type === Column.Type.Duration && selectedInputColumns[0].type === Column.Type.Date) {
-								formulaInput = formulaInput + " -"
-							}
 							formulaInput = formulaInput + " C" + (inputLength - 1)
 						} else {
 							formulaInput = formulaInput + "C" + (inputLength - 1)
