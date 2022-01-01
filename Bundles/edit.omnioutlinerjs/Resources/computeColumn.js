@@ -257,7 +257,7 @@ var _ = function() {
 					throw new Error('Formula is invalid.')
 				}
 			} else {
-				return false
+				throw new Error('Select an output column.')
 			}
 			
 		}
@@ -330,6 +330,9 @@ function compute(formula, row, columns, target) {
 				} else {
 					value = false
 				}
+			} else if (value.constructor.name === "Date") {
+				// Use hours instead of milliseconds in conputing dates
+				value = Number(value) / 3600000
 			}
 			
 		} else {
@@ -358,26 +361,24 @@ function compute(formula, row, columns, target) {
 	}
 	
 	if (target.type === Column.Type.Date) {
-		// C0 must be a date
-		c[0] = c[0] / 3600000 // ms -> h
 		
-		if ((result !== null && result !== undefined) || result === 0) {
-			result = new Date(eval(formula) * 3600000)
+		if ((result && Number (result)) || result === 0) {
+			result = new Date(Number(eval(formula) * 3600000))
 		} else {
 			result = null
 		}
 		
-	} else if (target.type === Column.Type.Duration && columns.length === 2 && columns[0].type === Column.Type.Date) {
+	} else if (target.type === Column.Type.Duration || target.type === Column.Type.Number) {
 		
-		if (result || result === 0) {
-			result = result / 3600000 // ms -> h
+		if ((result && Number (result)) || result === 0) {
+			result = Number(result)
 		} else {
 			result = null
 		}
 		
 	} else if (target.type === Column.Type.Checkbox) {
 		
-		if (result) {
+		if (result && Number (result)) {
 			result = Boolean(result)
 		} else {
 			result = false
@@ -429,19 +430,23 @@ function isValidFormula(formula, columns, target) {
 	try {
 		result = eval(formula)
 	} catch(err) {
+		console.log("Invalid Formula: Formula doesn't pass eval().")
 		return false
 	}
 	
 	if (result) {
-		
-		if (typeof result === "number" || typeof result === "boolean" || isValidDate(result)) {
+		if (typeof result === "number" || !isNaN(Number(result)) || typeof result === "boolean" || isValidDate(result)) {
+			console.log("Valid Formula: Result is ", result," of type", typeof result, ".")
 			return true
 		} else {
+			console.log("Invalid Formula: Result is ", result," of type", typeof result, ".")
 			return false
 		}
 	} else if (result === 0 || result === null) {
+		console.log("Valid Formula: Result is ", result," of type", typeof result, ".")
 		return true
 	} else {
+		console.log("Invalid Formula: Result is of type", typeof result, ".")
 		return false
 	}
 }
