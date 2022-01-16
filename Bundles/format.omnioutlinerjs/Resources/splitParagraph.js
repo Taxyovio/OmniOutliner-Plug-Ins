@@ -106,58 +106,56 @@ var _ = function() {
 					var counter = 0
 					var repeats = paragraphArrayLength
 					
-					// In the Timer, all user defined objects get invalidated. 
-					// Usable objects: document, columns, rootItem, outlineColumn, noteColumn, statusColumn
-					Timer.repeating(0, function(timer) {
-						var node = document.editors[0].selection.nodes[index]
-						if (selectedColumnTitle === '') {
-							var column = document.outline.noteColumn
-						} else {
-							var editor = document.editors[0]
-							
-							var filteredColumns = columns.filter(function(column) {
-								if (editor.visibilityOfColumn(column)) {
-									if (column.type === Column.Type.Text) {return column}
-								}
+					// Timer.repeating is bugged and causes crashes when canceled. So writing my own repeating timer. Good news is objects no longer gets invalidated.
+					function repeatingTimer(interval, repeatingFunc, startFunc, endFunc) {
+						if (counter === 0) {
+							startFunc()
+							Timer.once(interval, function(timer) {
+								repeatingTimer(interval, repeatingFunc, startFunc, endFunc)
 							})
-							
-							
-							var filteredColumnTitles = filteredColumns.map(function(column) {
-								if (column.title !== '') {
-									return column.title
-								} else if (column === document.outline.noteColumn) {
-								// The note column is the only text column with empty title
-									return 'Notes'
-								}
+						} else if (counter < repeats) {
+							repeatingFunc()
+							Timer.once(interval, function(timer) {
+								repeatingTimer(interval, repeatingFunc, startFunc, endFunc)
 							})
-							var column = columnByTitle(filteredColumns, selectedColumnTitle)
+						} else if (counter === repeats) {
+							endFunc()
 						}
 						
-						if (counter === repeats) {
-							if (duplicateColumnTitles) {
-								duplicateColumnTitles.forEach((title, i) => {
-									columns[duplicateColumnIndices[i]].title = title
-								})
-							}
+					}
+					
+					// Can't set interval too small (<0.004). Otherwise it overrides the 1st par with the 2nd par.
+					repeatingTimer(0.005, 
+						function () {
+							var node = document.editors[0].selection.nodes[index]
 							
-							console.log('done')
-							timer.cancel()
-						} else if (counter === 0) {
-							console.log('counter: ', counter)
-							counter = counter + 1
-							node.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[0]
-						} else {
 							console.log('counter: ', counter)
 							counter = counter + 1
 							var childIndex = node.index
 							document.editors[0].paste(pb, node.parent, childIndex)
 							var newNode = node.parent.children[childIndex]
 							if (paragraphStringArray.slice().reverse()[counter - 1]) {
-								newNode.object.valueForColumn(column).string = paragraphStringArray.slice().reverse()[counter - 1]
+								newNode.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[counter - 1]
 							}
+						}, 
+						function () {
+							var node = document.editors[0].selection.nodes[index]
 							
-						} 
-					})
+							console.log('counter: ', counter)
+							counter = counter + 1
+							node.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[0]
+						},
+						function () {
+							if (duplicateColumnTitles) {
+								duplicateColumnTitles.forEach((title, i) => {
+									columns[duplicateColumnIndices[i]].title = title
+								})
+							}
+							console.log("done")
+						}
+						
+					)
+					
 					
 				} else {
 					alert = new Alert('Error', 'Not enough paragraphs are found.')
