@@ -1,10 +1,10 @@
 {"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.taxyovio.share","version":"2021.03.17","description":"A collection of Omni Automation scripts exporting data out of OmniOutliner.","actions":[
-	{"image":"icon.png","identifier":"addToAnki"},
-	{"image":"icon.png","identifier":"addToThings"},
-	{"image":"icon.png","identifier":"addToDEVONthink"},
-	{"image":"icon.png","identifier":"shareColumn"},
-	{"image":"icon.png","identifier":"shareAttachment"},
-	{"image":"icon.png","identifier":"shareItemLink"},
-	{"image":"icon.png","identifier":"shareAsMarkdown"},
-	{"image":"icon.png","identifier":"shareClipboard"},
+	{"image":"note.text","identifier":"addToAnki"},
+	{"image":"checklist","identifier":"addToThings"},
+	{"image":"doc.richtext","identifier":"addToDEVONthink"},
+	{"image":"chart.bar.doc.horizontal","identifier":"shareColumn"},
+	{"image":"paperclip.circle","identifier":"shareAttachment"},
+	{"image":"link.circle","identifier":"shareItemLink"},
+	{"image":"arrow.down.doc","identifier":"shareAsMarkdown"},
+	{"image":"arrow.up.doc.on.clipboard","identifier":"shareClipboard"},
 ],"defaultLocale":"en"}

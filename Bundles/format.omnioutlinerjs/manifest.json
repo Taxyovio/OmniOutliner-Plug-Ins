@@ -1,9 +1,9 @@
 {"author":"Taxyovio","libraries":[{"identifier":"ApplicationLib"}],"identifier":"com.taxyovio.format","version":"2021.03.17","description":"A collection of Omni Automation scripts formatting data in OmniOutliner.","actions":[
-	{"image":"icon.png","identifier":"pasteStyle"},
-	{"image":"icon.png","identifier":"clearStyle"},
-	{"image":"icon.png","identifier":"lineSpacing"},
-	{"image":"icon.png","identifier":"columnFormatter"},
-	{"image":"icon.png","identifier":"applyTitleCase"},
-	{"image":"icon.png","identifier":"splitParagraph"},
-	{"image":"icon.png","identifier":"trimColumn"},
+	{"image":"a.square","identifier":"pasteStyle"},
+	{"image":"character.textbox","identifier":"clearStyle"},
+	{"image":"line.3.horizontal","identifier":"lineSpacing"},
+	{"image":"number.square","identifier":"columnFormatter"},
+	{"image":"textformat","identifier":"applyTitleCase"},
+	{"image":"paragraphsign","identifier":"splitParagraph"},
+	{"image":"delete.right","identifier":"trimColumn"},
 ],"defaultLocale":"en"}
