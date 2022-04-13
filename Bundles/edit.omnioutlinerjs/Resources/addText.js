@@ -162,7 +162,7 @@
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.nodes.length > 0) {return true} else {return false}
+		if(selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;

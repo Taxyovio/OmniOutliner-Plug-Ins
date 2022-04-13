@@ -5,13 +5,13 @@
 		// selection options: columns, document, editor, items, nodes, outline, styles
 		var selectedItems = selection.items
 		var editor = selection.editor
-		var nodes = selection.nodes
+		var nodes = editor.nodesForObjects(selection.items)
 		editor.focusedItems = selectedItems
 	});
 
 	action.validate = function(selection, sender) {
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.nodes.length > 0) {return true} else {return false}
+		if (selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;

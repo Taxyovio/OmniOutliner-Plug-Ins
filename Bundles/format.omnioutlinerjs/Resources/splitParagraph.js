@@ -4,11 +4,11 @@ var _ = function() {
 	var action = new PlugIn.Action(function(selection, sender) {
 		// action code
 		// selection options: columns, document, editor, items, nodes, styles
+		var editor = document.editors[0]
 		var selectedItems = selection.items
 		var pb = Pasteboard.makeUnique()
 		
 		// List all visible text columns
-		var editor = document.editors[0]
 		var filteredColumns = columns.filter(function(column) {
 			if (editor.visibilityOfColumn(column)) {
 				if (column.type === Column.Type.Text) {return column}
@@ -85,9 +85,12 @@ var _ = function() {
 			}
 			
 			
-			selection.nodes.forEach(function(node, index) {
-				editor.copyNodes([node],pb)
-				// Get the text object from topic column
+			editor.nodesForObjects(selectedItems).forEach(function(node, index) {
+				
+				// Copy node to pasteboard
+				editor.copyNodes([node], pb)
+				
+				// Get the text object from selected column
 				var textObj = node.valueForColumn(selectedColumn)
 				var paragraphArray = textObj.paragraphs
 				var paragraphStringArray = paragraphArray.map(function(par) {
@@ -102,59 +105,40 @@ var _ = function() {
 				var paragraphArrayLength = paragraphStringArray.length
 				
 				if (paragraphArrayLength > 1) {
+					
+					
+					
 					// Prepare timer to work around Tree.paste bug
 					var counter = 0
 					var repeats = paragraphArrayLength
 					
-					// Timer.repeating is bugged and causes crashes when canceled. So writing my own repeating timer. Good news is objects no longer gets invalidated.
-					function repeatingTimer(interval, repeatingFunc, startFunc, endFunc) {
-						if (counter === 0) {
-							startFunc()
-							Timer.once(interval, function(timer) {
-								repeatingTimer(interval, repeatingFunc, startFunc, endFunc)
-							})
-						} else if (counter < repeats) {
-							repeatingFunc()
-							Timer.once(interval, function(timer) {
-								repeatingTimer(interval, repeatingFunc, startFunc, endFunc)
-							})
-						} else if (counter === repeats) {
-							endFunc()
-						}
+					Timer.repeating(0.05, function(timer) {
 						
-					}
-					
-					// Can't set interval too small (<0.004). Otherwise it overrides the 1st par with the 2nd par.
-					repeatingTimer(0.005, 
-						function () {
-							var node = document.editors[0].selection.nodes[index]
-							
-							console.log('counter: ', counter)
-							counter = counter + 1
-							var childIndex = node.index
-							document.editors[0].paste(pb, node.parent, childIndex)
-							var newNode = node.parent.children[childIndex]
-							if (paragraphStringArray.slice().reverse()[counter - 1]) {
-								newNode.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[counter - 1]
-							}
-						}, 
-						function () {
-							var node = document.editors[0].selection.nodes[index]
-							
-							console.log('counter: ', counter)
-							counter = counter + 1
-							node.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[0]
-						},
-						function () {
+						var childIndex = node.index
+						
+						if (counter === repeats) {
 							if (duplicateColumnTitles) {
 								duplicateColumnTitles.forEach((title, i) => {
 									columns[duplicateColumnIndices[i]].title = title
 								})
 							}
-							console.log("done")
-						}
-						
-					)
+							console.log('done')
+							timer.cancel()
+						} else if (counter === 0) {
+							console.log('counter: ', counter)
+							node.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[0]
+							counter = counter + 1
+						} else {
+							console.log('counter: ', counter)
+							
+							editor.paste(pb, node.parent, childIndex + 1 - counter)
+							var newNode = node.parent.children[childIndex + 1 - counter]
+							if (paragraphStringArray.slice().reverse()[counter]) {
+								newNode.object.valueForColumn(selectedColumn).string = paragraphStringArray.slice().reverse()[counter]
+							}
+							counter = counter + 1
+						} 
+					})
 					
 					
 				} else {
@@ -173,7 +157,7 @@ var _ = function() {
 	action.validate = function(selection, sender) {
 		// validation code
 		// selection options: columns, document, editor, items, nodes, styles
-		if(selection.items.length > 0) {return true} else {return false}
+		if (selection.items.length > 0) {return true} else {return false}
 	};
 	
 	return action;
