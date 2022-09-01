@@ -8,29 +8,8 @@ This is a collection of [Omni Automation](https://omni-automation.com) scripts f
 - Share
 - BibTeX
 
-The functionalities are mostly self-explainatory from filenames. The details of each action can be found below. They are designed for iPadOS but most should also work on MacOS. The single actions in `[old] Singles` folder are no longer maintained as they have been incorporated into bundles. 
+The functionalities are mostly self-explainatory from filenames. The details of each action can be found below. They are designed for iPadOS but most should also work on MacOS. 
 
-For those who only want a few single actions, you can take a few simple steps to convert the `*.js` files in the bundles into single actions: 
-
-- Find the desired `*.js` file in the `/*.omnioutlinerjs/resources/` folder, and change the extension to omnijs;
-- Find a `*.omnijs` file in the `/[old] Singles/` folder;
-- Copy the JSON format manifest in the comment header in the `*.omnijs`, such as 
-
-```
-/*{
-	"type": "action",
-	"targets": ["omnioutliner"],
-	"author": "Taxyovio",
-	"description": "Script creates a new Things task from the selected outline item.",
-	"label": "Add to Things",
-	"paletteLabel": "Add to Things"
-}*/
-```
-
-- Paste it at the first line of the renamed `*.js` file;
-- Change the values in the keys such as `label` and `paletteLabel` to appropriate ones.
-
-Note this doesn’t work for scripts that depend on libraries. These can be identified with the calling of `this.plugIn.library()`. 
 ##  Plug-Ins
 ###  Edit
 ####  Copy as Link
@@ -39,6 +18,8 @@ This action copies the links for the selected rows, e.g. `omnioutliner:///open?r
 This action copies the contents of a selected column in the selected rows as plain texts, with the option of copying as an array of texts.
 ####  Paste Column
 This action pastes the list of objects from clipboard into a selected column for the selected rows, one in each cell, with the option to override existing contents in the cell. If there are more objects in the clipboard than selected rows, the list of clipboard objects is truncated to the number of selected rows, and vice versa. 
+####  Edit Column
+This action takes text inputs and applies repeatedly into the selected target column. If the override toggle is off, then it appends the texts instead.
 ####  Compute Column
 This action takes inputs from selected columns and outputs the computed results into the selected target column, processing on a row by row basis. The formula field allows for any valid JavaScript expression that passes through `eval()`.
 ####  Find and Replace
